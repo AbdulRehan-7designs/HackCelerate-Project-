@@ -43,8 +43,8 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
         variant="ghost"
         size="sm"
         className={cn(
-          "flex flex-col h-auto py-2",
-          hasVoted && "text-civic-blue bg-blue-50"
+          "flex flex-col h-auto py-2 hover-lift",
+          hasVoted ? "text-civic-blue bg-blue-50" : ""
         )}
         onClick={handleVote}
       >

@@ -7,8 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { issueCategories } from "@/utils/mockData";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import AIClassifier from './AIClassifier';
+import MultiMediaUploader from './MultiMediaUploader';
+import AreaSelector from './AreaSelector';
+
+interface MediaFile {
+  type: 'image' | 'audio' | 'video';
+  url: string;
+  file: File;
+}
 
 interface ReportFormProps {
   onSubmitSuccess?: () => void;
@@ -19,7 +27,8 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [area, setArea] = useState('');
+  const [media, setMedia] = useState<MediaFile | null>(null);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -27,7 +36,7 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (!title || !category || !description || !address) {
+    if (!title || !category || !description || !address || !area) {
       toast({
         title: "Missing information",
         description: "Please fill in all required fields.",
@@ -50,7 +59,8 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
       setCategory('');
       setDescription('');
       setAddress('');
-      setImageUrl(null);
+      setArea('');
+      setMedia(null);
       setAiTags([]);
       setIsSubmitting(false);
       
@@ -58,16 +68,6 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
         onSubmitSuccess();
       }
     }, 1000);
-  };
-  
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      // In a real app, we would upload the file to storage
-      // For now, just create a local object URL
-      const url = URL.createObjectURL(files[0]);
-      setImageUrl(url);
-    }
   };
 
   const handleAIClassify = (tags: string[]) => {
@@ -94,8 +94,8 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      <div className="grid gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+      <div className="grid gap-5">
         <div className="space-y-2">
           <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
           <Input
@@ -104,21 +104,26 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            className="border-civic-blue/30 focus:border-civic-blue"
           />
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="category">Category <span className="text-red-500">*</span></Label>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {issueCategories.map((cat) => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="category">Category <span className="text-red-500">*</span></Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="border-civic-blue/30 focus:border-civic-blue">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {issueCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <AreaSelector value={area} onValueChange={setArea} />
         </div>
         
         <div className="space-y-2">
@@ -130,6 +135,7 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            className="border-civic-blue/30 focus:border-civic-blue"
           />
         </div>
         
@@ -141,57 +147,28 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
+            className="border-civic-blue/30 focus:border-civic-blue"
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="image">Photo Evidence</Label>
-          <div className="flex flex-col space-y-2">
-            {imageUrl ? (
-              <div className="relative">
-                <img 
-                  src={imageUrl} 
-                  alt="Issue preview" 
-                  className="w-full h-auto rounded-md max-h-48 object-cover"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => setImageUrl(null)}
-                >
-                  Change
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md p-6 bg-gray-50">
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="flex flex-col items-center space-y-2">
-                    <Camera className="h-8 w-8 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-600">Upload a photo</span>
-                    <span className="text-xs text-gray-400">Click to browse</span>
-                  </div>
-                  <Input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-            )}
-          </div>
+          <MultiMediaUploader 
+            onMediaChange={setMedia} 
+            initialMedia={media}
+          />
         </div>
         
-        {imageUrl && (
-          <AIClassifier imageUrl={imageUrl} onClassify={handleAIClassify} />
+        {media?.type === 'image' && (
+          <AIClassifier imageUrl={media.url} onClassify={handleAIClassify} />
         )}
       </div>
       
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="gradient-header hover:shadow-md"
+        >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
