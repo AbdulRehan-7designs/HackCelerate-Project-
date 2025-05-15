@@ -10,7 +10,8 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import IssueFilters from "@/components/admin/IssueFilters";
 import IssueTable from "@/components/admin/IssueTable";
 import TabContent from "@/components/admin/TabContent";
-import PlaceholderContent from "@/components/admin/PlaceholderContent";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import SettingsPanel from "@/components/admin/SettingsPanel";
 
 // Mock admin component with the most essential functionality
 const Admin = () => {
@@ -80,7 +81,7 @@ const Admin = () => {
                 title="Analytics Dashboard" 
                 description="View statistics and insights about reported issues."
               >
-                <PlaceholderContent />
+                <AnalyticsDashboard />
               </TabContent>
             </TabsContent>
             
@@ -89,7 +90,7 @@ const Admin = () => {
                 title="Admin Settings" 
                 description="Configure system settings and permissions."
               >
-                <PlaceholderContent />
+                <SettingsPanel />
               </TabContent>
             </TabsContent>
           </Tabs>
