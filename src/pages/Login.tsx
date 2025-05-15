@@ -54,9 +54,9 @@ const Login = () => {
       <Navbar />
       
       <main className="flex-1 flex items-center justify-center py-12 px-4">
-        <Card className="w-full max-w-md gradient-card animate-scale-in">
+        <Card className="w-full max-w-md gradient-card animate-scale-in hover:shadow-xl transition-all duration-300">
           <CardHeader className="space-y-1 flex flex-col items-center text-center">
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex items-center space-x-2 mb-2 hover:scale-105 transition-transform">
               <MapPin className="h-8 w-8 text-civic-blue" />
               <span className="font-bold text-2xl">TownReport</span>
               <span className="rounded bg-civic-blue text-white px-2 py-0.5 text-xs font-semibold">AI</span>
@@ -77,13 +77,13 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="border-civic-blue/30 focus:border-civic-blue"
+                  className="border-civic-blue/30 focus:border-civic-blue hover:border-civic-blue/50 transition-all"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link to="/forgot-password" className="text-xs text-civic-blue hover:underline">
+                  <Link to="/forgot-password" className="text-xs text-civic-blue hover:underline hover:text-civic-blue/80 transition-colors">
                     Forgot password?
                   </Link>
                 </div>
@@ -93,12 +93,12 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)} 
                   required
-                  className="border-civic-blue/30 focus:border-civic-blue"
+                  className="border-civic-blue/30 focus:border-civic-blue hover:border-civic-blue/50 transition-all"
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full gradient-header hover:opacity-90 transition-all" 
+                className="w-full gradient-header hover:opacity-90 transition-all hover:shadow-md" 
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : (
@@ -112,7 +112,7 @@ const Login = () => {
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <Link to="/register" className="text-civic-blue hover:underline">
+              <Link to="/register" className="text-civic-blue hover:underline hover:text-civic-blue/80 transition-colors">
                 Sign up
               </Link>
             </p>
