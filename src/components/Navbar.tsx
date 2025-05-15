@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Search, Upload, LogIn, LogOut, User } from "lucide-react";
+import { Bell, MapPin, Search, Upload, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link, useNavigate } from "react-router-dom";
 import ReportForm from './ReportForm';
@@ -101,7 +101,21 @@ const Navbar = () => {
           <span className="rounded bg-white/25 backdrop-blur-sm text-white px-1.5 py-0.5 text-xs font-semibold hidden sm:inline-flex">AI</span>
         </Link>
         
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        <div className="flex-1 mx-4">
+          <nav className="hidden md:flex items-center space-x-4 text-sm">
+            <Link to="/reports" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
+              All Reports
+            </Link>
+            <Link to="/my-reports" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
+              My Reports
+            </Link>
+            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
+              <ShieldCheck className="h-4 w-4 mr-1" /> Officials
+            </Link>
+          </nav>
+        </div>
+        
+        <div className="flex items-center justify-end space-x-2">
           <form onSubmit={handleSearchSubmit} className="hidden w-full max-w-sm md:flex items-center space-x-2 mr-4 relative">
             <div className="relative w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />

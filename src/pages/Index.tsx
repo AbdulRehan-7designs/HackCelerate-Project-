@@ -1,8 +1,11 @@
 
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/context/AuthContext';
+import { Button } from "@/components/ui/button";
+import { Shield, MapPin } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
@@ -39,12 +42,16 @@ const Index = () => {
                 </p>
               </div>
               <div className="space-x-4">
-                <button className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 animate-scale-in">
-                  Get Started
-                </button>
-                <button className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                  Learn More
-                </button>
+                <Link to="/reports">
+                  <Button className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 animate-scale-in">
+                    Get Started
+                  </Button>
+                </Link>
+                <Link to="/officials/login">
+                  <Button className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                    <Shield className="mr-2 h-4 w-4" /> Officials Login
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
