@@ -161,7 +161,8 @@ const Reports = () => {
                   <CardContent className="pb-2">
                     <div className="flex items-center text-sm text-gray-500">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {report.location}
+                      {/* Fix: Access the address property of the location object */}
+                      {typeof report.location === 'object' ? report.location.address : report.location}
                     </div>
                   </CardContent>
                   
