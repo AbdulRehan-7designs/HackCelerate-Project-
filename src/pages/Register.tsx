@@ -4,31 +4,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, LogIn } from "lucide-react";
+import { MapPin, UserPlus } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { useAuth } from '@/context/AuthContext';
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { isAuthenticated, login } = useAuth();
 
   // If already logged in, redirect to home
   if (isAuthenticated) {
     return <Navigate to="/" />;
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email || !password || !confirmPassword) {
       toast({
         title: "Error",
-        description: "Please enter both email and password.",
+        description: "Please fill in all fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
         variant: "destructive",
       });
       return;
@@ -36,17 +46,24 @@ const Login = () => {
     
     setIsLoading(true);
     
-    try {
-      await login(email, password);
-    } catch (error) {
+    // In a real app, this would call an API registration endpoint
+    setTimeout(() => {
       toast({
-        title: "Login Failed",
-        description: "An error occurred during login.",
-        variant: "destructive",
+        title: "Registration Successful",
+        description: "Your account has been created. You can now log in.",
       });
-    } finally {
+      
+      // Auto-login after successful registration
+      login(email, password).catch(() => {
+        toast({
+          title: "Auto-login Failed",
+          description: "Please try logging in manually.",
+          variant: "destructive",
+        });
+      });
+      
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -61,13 +78,13 @@ const Login = () => {
               <span className="font-bold text-2xl">TownReport</span>
               <span className="rounded bg-civic-blue text-white px-2 py-0.5 text-xs font-semibold">AI</span>
             </div>
-            <CardTitle className="text-2xl">Sign in to your account</CardTitle>
+            <CardTitle className="text-2xl">Create an account</CardTitle>
             <CardDescription>
-              Enter your credentials to access your account
+              Join our community to report and track local issues
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input 
@@ -81,12 +98,7 @@ const Login = () => {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link to="/forgot-password" className="text-xs text-civic-blue hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Password</Label>
                 <Input 
                   id="password" 
                   type="password"
@@ -96,14 +108,25 @@ const Login = () => {
                   className="border-civic-blue/30 focus:border-civic-blue"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input 
+                  id="confirmPassword" 
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)} 
+                  required
+                  className="border-civic-blue/30 focus:border-civic-blue"
+                />
+              </div>
               <Button 
                 type="submit" 
                 className="w-full gradient-header hover:opacity-90 transition-all" 
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : (
+                {isLoading ? 'Creating Account...' : (
                   <span className="flex items-center justify-center gap-2">
-                    <LogIn className="h-4 w-4" /> Sign In
+                    <UserPlus className="h-4 w-4" /> Create Account
                   </span>
                 )}
               </Button>
@@ -111,9 +134,9 @@ const Login = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-civic-blue hover:underline">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/login" className="text-civic-blue hover:underline">
+                Sign in
               </Link>
             </p>
           </CardFooter>
@@ -134,4 +157,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

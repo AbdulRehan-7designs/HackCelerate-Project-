@@ -1,16 +1,26 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Search, Upload, LogIn } from "lucide-react";
+import { Bell, MapPin, Search, Upload, LogIn, LogOut, User } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import ReportForm from './ReportForm';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b gradient-header text-white shadow-md">
+    <header className="sticky top-0 z-50 w-full border-b gradient-header text-white shadow-md animate-fade-in">
       <div className="container flex h-16 items-center">
         <Link to="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
           <MapPin className="h-6 w-6 text-white" />
@@ -33,7 +43,7 @@ const Navbar = () => {
           
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/20">
+              <Button className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/20 hover-lift">
                 <Upload className="h-4 w-4" />
                 <span className="hidden sm:inline">Report Issue</span>
                 <span className="sm:hidden">Report</span>
@@ -50,16 +60,46 @@ const Navbar = () => {
             </DialogContent>
           </Dialog>
           
-          <Button variant="outline" size="icon" className="bg-white/20 hover:bg-white/30 text-white border-white/20">
+          <Button variant="outline" size="icon" className="bg-white/20 hover:bg-white/30 text-white border-white/20 hover-lift">
             <Bell className="h-4 w-4" />
           </Button>
 
-          <Link to="/login">
-            <Button variant="outline" className="bg-white/20 hover:bg-white/30 text-white border-white/20 flex items-center gap-1.5">
-              <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="bg-white/20 hover:bg-white/30 text-white border-white/20 flex items-center gap-1.5 hover-lift">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">{user?.email.split('@')[0]}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {user?.isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">Admin Dashboard</Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/my-reports">My Reports</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" /> Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/login">
+              <Button variant="outline" className="bg-white/20 hover:bg-white/30 text-white border-white/20 flex items-center gap-1.5 hover-lift">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">Login</span>
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>
