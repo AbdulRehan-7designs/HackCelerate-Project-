@@ -1,4 +1,3 @@
-
 import { formatDistance } from 'date-fns';
 
 export interface IssueReport {
@@ -30,13 +29,24 @@ export interface Comment {
 
 export const issueCategories = [
   'Road Damage',
-  'Garbage Overflow',
+  'Garbage & Waste',
   'Water Leakage',
-  'Electricity Issue',
-  'Street Light',
+  'Street Light Issue',
   'Drainage Blockage',
-  'Public Property Damage',
   'Tree Hazard',
+  'Graffiti',
+  'Abandoned Vehicle',
+  'Noise Complaint',
+  'Sidewalk Damage',
+  'Traffic Signal Issue',
+  'Park Maintenance',
+  'Public Property Damage',
+  'Illegal Dumping',
+  'Animal Control',
+  'Pest Control',
+  'Snow Removal',
+  'Public Safety Concern',
+  'Parking Violation',
   'Other'
 ];
 
@@ -82,7 +92,7 @@ export const mockIssues: IssueReport[] = [
     id: '2',
     title: 'Overflowing trash bin at Central Park',
     description: 'The trash bin near the east entrance is overflowing. Garbage is spreading around the area.',
-    category: 'Garbage Overflow',
+    category: 'Garbage & Waste',
     location: {
       address: 'Central Park East Entrance',
       lat: 40.7736,
@@ -100,7 +110,7 @@ export const mockIssues: IssueReport[] = [
     id: '3',
     title: 'Broken street light on Elm Street',
     description: 'Street light has been out for over a week, making the area dark and unsafe at night.',
-    category: 'Street Light',
+    category: 'Street Light Issue',
     location: {
       address: '456 Elm St, Springfield',
       lat: 40.7282,

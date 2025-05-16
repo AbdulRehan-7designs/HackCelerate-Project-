@@ -21,21 +21,29 @@ interface MultiMediaUploaderProps {
 const MultiMediaUploader = ({ onMediaChange, initialMedia }: MultiMediaUploaderProps) => {
   const [media, setMedia] = useState<MediaFile | null>(initialMedia || null);
   const [activeTab, setActiveTab] = useState<MediaType>('image');
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: MediaType) => {
     const files = event.target.files;
     if (files && files.length > 0) {
+      setIsUploading(true);
       const file = files[0];
+      
+      // Create object URL for immediate preview
       const url = URL.createObjectURL(file);
       const newMedia: MediaFile = { type, url, file };
       
-      setMedia(newMedia);
-      onMediaChange(newMedia);
-      
-      toast({
-        description: `${type.charAt(0).toUpperCase() + type.slice(1)} uploaded successfully.`,
-      });
+      // Simulate upload with a small delay to show the upload process
+      setTimeout(() => {
+        setMedia(newMedia);
+        onMediaChange(newMedia);
+        setIsUploading(false);
+        
+        toast({
+          description: `${type.charAt(0).toUpperCase() + type.slice(1)} uploaded successfully.`,
+        });
+      }, 800);
     }
   };
 
@@ -111,12 +119,26 @@ const MultiMediaUploader = ({ onMediaChange, initialMedia }: MultiMediaUploaderP
               }
               onChange={(e) => handleFileUpload(e, activeTab)}
               className="hidden"
+              disabled={isUploading}
             />
           </label>
         </div>
       )}
       
-      {media && (
+      {isUploading && (
+        <div className="border rounded-md p-6 bg-gray-50">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="animate-pulse flex space-x-2 items-center">
+              <div className="h-2 w-2 bg-civic-blue rounded-full"></div>
+              <div className="h-2 w-2 bg-civic-blue rounded-full"></div>
+              <div className="h-2 w-2 bg-civic-blue rounded-full"></div>
+            </div>
+            <span className="text-sm text-gray-600">Uploading {activeTab}...</span>
+          </div>
+        </div>
+      )}
+      
+      {media && !isUploading && (
         <div className="relative border rounded-md p-2 bg-gray-50">
           <Button
             type="button"
@@ -139,7 +161,7 @@ const MultiMediaUploader = ({ onMediaChange, initialMedia }: MultiMediaUploaderP
           {media.type === 'audio' && (
             <div className="pt-6 pb-2">
               <audio controls className="w-full">
-                <source src={media.url} />
+                <source src={media.url} type={media.file.type} />
                 Your browser does not support audio playback.
               </audio>
             </div>
@@ -148,7 +170,7 @@ const MultiMediaUploader = ({ onMediaChange, initialMedia }: MultiMediaUploaderP
           {media.type === 'video' && (
             <div className="pt-6 pb-2">
               <video controls className="w-full max-h-48 object-contain">
-                <source src={media.url} />
+                <source src={media.url} type={media.file.type} />
                 Your browser does not support video playback.
               </video>
             </div>
