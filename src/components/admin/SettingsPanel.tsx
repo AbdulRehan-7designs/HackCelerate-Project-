@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,7 +15,7 @@ const SettingsPanel = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [webNotifications, setWebNotifications] = useState(true);
   const [autoAssign, setAutoAssign] = useState(false);
-  const [apiKey, setApiKey] = useState("sk_live_TownReport_123456789abcdefghijklmnopqrstuvwxyz");
+  const [apiKey, setApiKey] = useState("sk_live_CivicPulse_123456789abcdefghijklmnopqrstuvwxyz");
   
   const handleSaveGeneral = () => {
     toast({
@@ -40,7 +39,7 @@ const SettingsPanel = () => {
   };
   
   const regenerateApiKey = () => {
-    const newKey = "sk_live_TownReport_" + Math.random().toString(36).substring(2);
+    const newKey = "sk_live_CivicPulse_" + Math.random().toString(36).substring(2);
     setApiKey(newKey);
     toast({
       title: "API Key regenerated",
@@ -79,7 +78,7 @@ const SettingsPanel = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="app-name">Application Name</Label>
-              <Input id="app-name" defaultValue="TownReport" />
+              <Input id="app-name" defaultValue="CivicPulse" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="app-description">Application Description</Label>

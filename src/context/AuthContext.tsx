@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   // Check for saved user on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('townreport-user');
+    const savedUser = localStorage.getItem('civicpulse-user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -46,12 +46,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const userData = { email, isAdmin };
     
     // Save to localStorage
-    localStorage.setItem('townreport-user', JSON.stringify(userData));
+    localStorage.setItem('civicpulse-user', JSON.stringify(userData));
     setUser(userData);
     
     toast({
       title: isAdmin ? "Admin Login Successful" : "Login Successful",
-      description: isAdmin ? "Welcome to the admin dashboard." : "Welcome back to TownReport AI.",
+      description: isAdmin ? "Welcome to the admin dashboard." : "Welcome back to CivicPulse AI.",
     });
     
     // Navigate based on user type
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   
   const logout = () => {
-    localStorage.removeItem('townreport-user');
+    localStorage.removeItem('civicpulse-user');
     setUser(null);
     toast({
       title: "Logged Out",

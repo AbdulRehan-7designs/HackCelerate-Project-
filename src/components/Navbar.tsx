@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Search, Upload, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
@@ -96,8 +95,8 @@ const Navbar = () => {
       <div className="container flex h-16 items-center">
         <Link to="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity hover:scale-105 duration-200">
           <MapPin className="h-6 w-6 text-white" />
-          <span className="hidden font-bold sm:inline-block text-xl">TownReport</span>
-          <span className="font-bold sm:hidden text-lg">TR</span>
+          <span className="hidden font-bold sm:inline-block text-xl">CivicPulse</span>
+          <span className="font-bold sm:hidden text-lg">CP</span>
           <span className="rounded bg-white/25 backdrop-blur-sm text-white px-1.5 py-0.5 text-xs font-semibold hidden sm:inline-flex">AI</span>
         </Link>
         
