@@ -233,7 +233,7 @@ const MyReports = () => {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
           <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} TownReport AI. All rights reserved.
+            © {new Date().getFullYear()} CivicPulse AI. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Built with community in mind. Version 1.0

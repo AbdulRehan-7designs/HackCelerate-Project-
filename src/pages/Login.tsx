@@ -58,7 +58,7 @@ const Login = () => {
           <CardHeader className="space-y-1 flex flex-col items-center text-center">
             <div className="flex items-center space-x-2 mb-2 hover:scale-105 transition-transform">
               <MapPin className="h-8 w-8 text-civic-blue" />
-              <span className="font-bold text-2xl">TownReport</span>
+              <span className="font-bold text-2xl">CivicPulse</span>
               <span className="rounded bg-civic-blue text-white px-2 py-0.5 text-xs font-semibold">AI</span>
             </div>
             <CardTitle className="text-2xl">Sign in to your account</CardTitle>
@@ -123,7 +123,7 @@ const Login = () => {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
           <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} TownReport AI. All rights reserved.
+            © {new Date().getFullYear()} CivicPulse AI. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Built with community in mind. Version 1.0

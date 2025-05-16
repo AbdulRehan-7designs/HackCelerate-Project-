@@ -43,7 +43,7 @@ const Admin = () => {
       <div className="flex-1 overflow-auto">
         <div className="container py-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold">CivicPulse Admin Dashboard</h1>
             <Link to="/">
               <Button variant="outline" size="sm" className="md:hidden">
                 <ChevronLeft className="mr-2 h-4 w-4" />
