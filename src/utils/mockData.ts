@@ -9,10 +9,12 @@ export interface IssueReport {
     address: string;
     lat: number;
     lng: number;
-  };
-  status: 'new' | 'verified' | 'in-progress' | 'resolved';
+  } | string;
+  status: 'new' | 'verified' | 'in-progress' | 'resolved' | 'fake';
   votes: number;
   images: string[];
+  videos?: string[];
+  audio?: string[];
   reportedBy: string;
   reportedAt: Date;
   updatedAt: Date;
@@ -75,6 +77,8 @@ export const mockIssues: IssueReport[] = [
     status: 'verified',
     votes: 15,
     images: ['/placeholder.svg'],
+    videos: [],
+    audio: [],
     reportedBy: 'john_doe',
     reportedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
@@ -101,6 +105,8 @@ export const mockIssues: IssueReport[] = [
     status: 'new',
     votes: 7,
     images: ['/placeholder.svg'],
+    videos: [],
+    audio: [],
     reportedBy: 'park_lover',
     reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
@@ -119,6 +125,8 @@ export const mockIssues: IssueReport[] = [
     status: 'in-progress',
     votes: 23,
     images: ['/placeholder.svg'],
+    videos: [],
+    audio: [],
     reportedBy: 'night_walker',
     reportedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
@@ -151,6 +159,8 @@ export const mockIssues: IssueReport[] = [
     status: 'new',
     votes: 19,
     images: ['/placeholder.svg'],
+    videos: [],
+    audio: [],
     reportedBy: 'concerned_neighbor',
     reportedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
@@ -169,6 +179,8 @@ export const mockIssues: IssueReport[] = [
     status: 'resolved',
     votes: 12,
     images: ['/placeholder.svg'],
+    videos: [],
+    audio: [],
     reportedBy: 'daily_jogger',
     reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
