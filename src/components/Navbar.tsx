@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Search, Upload, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
@@ -90,6 +91,19 @@ const Navbar = () => {
     });
   };
 
+  const handleReportClick = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to report an issue.",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b gradient-header text-white shadow-md animate-fade-in">
       <div className="container flex h-16 items-center">
@@ -108,7 +122,7 @@ const Navbar = () => {
             <Link to="/my-reports" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
               My Reports
             </Link>
-            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
+            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center backdrop-blur-sm bg-white/10">
               <ShieldCheck className="h-4 w-4 mr-1" /> Officials
             </Link>
           </nav>
@@ -151,7 +165,10 @@ const Navbar = () => {
           
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/20 hover:scale-105 transition-all">
+              <Button 
+                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/20 hover:scale-105 transition-all"
+                onClick={handleReportClick}
+              >
                 <Upload className="h-4 w-4" />
                 <span className="hidden sm:inline">Report Issue</span>
                 <span className="sm:hidden">Report</span>

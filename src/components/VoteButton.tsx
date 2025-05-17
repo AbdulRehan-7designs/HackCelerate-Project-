@@ -1,9 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface VoteButtonProps {
   issueId: string;
@@ -15,13 +17,44 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
   const [votes, setVotes] = useState<number>(initialVotes);
   const [hasVoted, setHasVoted] = useState<boolean>(false);
   const { toast } = useToast();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  
+  // Check if user has voted on this issue before
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
+      if (userVotes[issueId]) {
+        setHasVoted(true);
+      }
+    }
+  }, [issueId, isAuthenticated, user]);
 
   const handleVote = () => {
-    // In a real app, this would call an API to record the vote
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to vote on issues.",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+
+    // In a real app with Supabase, this would call an API to record the vote
     if (hasVoted) {
       const newVotes = votes - 1;
       setVotes(newVotes);
       setHasVoted(false);
+      
+      // Remove vote from localStorage
+      if (user) {
+        const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
+        delete userVotes[issueId];
+        localStorage.setItem(`civicpulse-votes-${user.email}`, JSON.stringify(userVotes));
+      }
+      
       if (onVoteChange) onVoteChange(newVotes);
       toast({
         description: "Your vote has been removed.",
@@ -30,6 +63,14 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
       const newVotes = votes + 1;
       setVotes(newVotes);
       setHasVoted(true);
+      
+      // Store vote in localStorage
+      if (user) {
+        const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
+        userVotes[issueId] = true;
+        localStorage.setItem(`civicpulse-votes-${user.email}`, JSON.stringify(userVotes));
+      }
+      
       if (onVoteChange) onVoteChange(newVotes);
       toast({
         description: "Thank you for voting! This helps prioritize the issue.",
