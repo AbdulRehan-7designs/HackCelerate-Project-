@@ -6,6 +6,8 @@ import { MapPin, Clock } from "lucide-react";
 import VoteButton from "../VoteButton";
 import { IssueMedia } from "./IssueMedia";
 import { IssueTagList } from "./IssueTagList";
+import { IssueAIInsights } from "./IssueAIInsights";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface IssueCardDetailsProps {
   issue: IssueReport;
@@ -32,39 +34,52 @@ export const IssueCardDetails = ({
         </div>
       </div>
       
-      <IssueMedia issue={issue} />
-      
-      <div>
-        <h3 className="text-sm font-medium mb-2">Description</h3>
-        <p className="text-gray-700">{issue.description}</p>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <h3 className="text-sm font-medium mb-1">Location</h3>
-          <div className="flex items-center text-gray-600">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span>
-              {typeof issue.location === 'object' ? issue.location.address : issue.location}
-            </span>
-          </div>
-        </div>
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+        </TabsList>
         
-        <div>
-          <h3 className="text-sm font-medium mb-1">Reported</h3>
-          <div className="flex items-center text-gray-600">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>{new Date(issue.reportedAt).toLocaleString()}</span>
+        <TabsContent value="details" className="space-y-4 pt-4">
+          <IssueMedia issue={issue} />
+          
+          <div>
+            <h3 className="text-sm font-medium mb-2">Description</h3>
+            <p className="text-gray-700">{issue.description}</p>
           </div>
-          <div className="text-sm text-gray-500 mt-1">
-            By {issue.reportedBy}
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-sm font-medium mb-1">Location</h3>
+              <div className="flex items-center text-gray-600">
+                <MapPin className="h-4 w-4 mr-1" />
+                <span>
+                  {typeof issue.location === 'object' ? issue.location.address : issue.location}
+                </span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium mb-1">Reported</h3>
+              <div className="flex items-center text-gray-600">
+                <Clock className="h-4 w-4 mr-1" />
+                <span>{new Date(issue.reportedAt).toLocaleString()}</span>
+              </div>
+              <div className="text-sm text-gray-500 mt-1">
+                By {issue.reportedBy}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      
-      {issue.aiTags && issue.aiTags.length > 0 && (
-        <IssueTagList tags={issue.aiTags} />
-      )}
+          
+          {issue.aiTags && issue.aiTags.length > 0 && (
+            <IssueTagList tags={issue.aiTags} />
+          )}
+        </TabsContent>
+        
+        <TabsContent value="ai-insights">
+          <IssueAIInsights issue={issue} />
+        </TabsContent>
+      </Tabs>
       
       <div className="flex items-center justify-between pt-2 border-t">
         <div className="flex items-center">

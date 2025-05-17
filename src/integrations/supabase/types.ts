@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_analyses: {
+        Row: {
+          alternative_categories: Json | null
+          assigned_departments: string[] | null
+          category_confidence: number | null
+          created_at: string
+          detected_patterns: Json | null
+          duplicate_score: number | null
+          estimated_response_time: number | null
+          extracted_keywords: string[] | null
+          id: string
+          impact_assessment: string | null
+          issue_id: string
+          predicted_category: string | null
+          priority_score: number
+          resource_requirements: Json | null
+          seasonal_factors: Json | null
+          similar_issue_ids: string[] | null
+          similarity_scores: Json | null
+          trend_indicators: Json | null
+          urgency_level: string | null
+        }
+        Insert: {
+          alternative_categories?: Json | null
+          assigned_departments?: string[] | null
+          category_confidence?: number | null
+          created_at?: string
+          detected_patterns?: Json | null
+          duplicate_score?: number | null
+          estimated_response_time?: number | null
+          extracted_keywords?: string[] | null
+          id?: string
+          impact_assessment?: string | null
+          issue_id: string
+          predicted_category?: string | null
+          priority_score?: number
+          resource_requirements?: Json | null
+          seasonal_factors?: Json | null
+          similar_issue_ids?: string[] | null
+          similarity_scores?: Json | null
+          trend_indicators?: Json | null
+          urgency_level?: string | null
+        }
+        Update: {
+          alternative_categories?: Json | null
+          assigned_departments?: string[] | null
+          category_confidence?: number | null
+          created_at?: string
+          detected_patterns?: Json | null
+          duplicate_score?: number | null
+          estimated_response_time?: number | null
+          extracted_keywords?: string[] | null
+          id?: string
+          impact_assessment?: string | null
+          issue_id?: string
+          predicted_category?: string | null
+          priority_score?: number
+          resource_requirements?: Json | null
+          seasonal_factors?: Json | null
+          similar_issue_ids?: string[] | null
+          similarity_scores?: Json | null
+          trend_indicators?: Json | null
+          urgency_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_analyses_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           comment_text: string
@@ -40,6 +114,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      issue_trends: {
+        Row: {
+          area: string | null
+          avg_resolution_time: number | null
+          category: string | null
+          created_at: string
+          hotspot_coordinates: unknown[] | null
+          id: string
+          issue_count: number
+          trend_data: Json | null
+          trend_period: string
+        }
+        Insert: {
+          area?: string | null
+          avg_resolution_time?: number | null
+          category?: string | null
+          created_at?: string
+          hotspot_coordinates?: unknown[] | null
+          id?: string
+          issue_count?: number
+          trend_data?: Json | null
+          trend_period: string
+        }
+        Update: {
+          area?: string | null
+          avg_resolution_time?: number | null
+          category?: string | null
+          created_at?: string
+          hotspot_coordinates?: unknown[] | null
+          id?: string
+          issue_count?: number
+          trend_data?: Json | null
+          trend_period?: string
+        }
+        Relationships: []
       }
       issue_updates: {
         Row: {

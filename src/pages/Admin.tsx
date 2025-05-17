@@ -12,8 +12,9 @@ import IssueTable from "@/components/admin/IssueTable";
 import TabContent from "@/components/admin/TabContent";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import SettingsPanel from "@/components/admin/SettingsPanel";
+import { AIInsightsDashboard } from "@/components/admin/AIInsightsDashboard";
 
-// Mock admin component with the most essential functionality
+// Admin component with the most essential functionality
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -56,6 +57,7 @@ const Admin = () => {
             <TabsList>
               <TabsTrigger value="reports">Reports</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -82,6 +84,15 @@ const Admin = () => {
                 description="View statistics and insights about reported issues."
               >
                 <AnalyticsDashboard />
+              </TabContent>
+            </TabsContent>
+            
+            <TabsContent value="ai-insights" className="pt-4">
+              <TabContent 
+                title="AI-Powered Insights" 
+                description="Advanced data analysis and intelligent insights for civic issues."
+              >
+                <AIInsightsDashboard />
               </TabContent>
             </TabsContent>
             
