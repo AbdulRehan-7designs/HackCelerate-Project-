@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Search, Upload, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
@@ -105,13 +104,13 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b gradient-header text-white shadow-md animate-fade-in">
+    <header className="sticky top-0 z-50 w-full bg-blue-600 text-white shadow-md animate-fade-in">
       <div className="container flex h-16 items-center">
         <Link to="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity hover:scale-105 duration-200">
           <MapPin className="h-6 w-6 text-white" />
           <span className="hidden font-bold sm:inline-block text-xl">CivicPulse</span>
           <span className="font-bold sm:hidden text-lg">CP</span>
-          <span className="rounded bg-white/25 backdrop-blur-sm text-white px-1.5 py-0.5 text-xs font-semibold hidden sm:inline-flex">AI</span>
+          <span className="rounded bg-white/25 backdrop-blur-sm text-white px-1.5 py-0.5 text-xs font-semibold">AI</span>
         </Link>
         
         <div className="flex-1 mx-4">
@@ -122,16 +121,25 @@ const Navbar = () => {
             <Link to="/my-reports" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
               My Reports
             </Link>
-            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center backdrop-blur-sm bg-white/10">
+            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
               <ShieldCheck className="h-4 w-4 mr-1" /> Officials
+            </Link>
+            <Link to="/insights" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center relative">
+              AI Insights
+              <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded px-1.5 text-[10px]">
+                New
+              </span>
+            </Link>
+            <Link to="/community-stats" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
+              Community Stats
             </Link>
           </nav>
         </div>
         
         <div className="flex items-center justify-end space-x-2">
-          <form onSubmit={handleSearchSubmit} className="hidden w-full max-w-sm md:flex items-center space-x-2 mr-4 relative">
+          <form onSubmit={(e) => e.preventDefault()} className="hidden w-full max-w-sm md:flex items-center space-x-2 mr-4 relative">
             <div className="relative w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-white/70" />
               <input
                 type="search"
                 placeholder="Search reports..."
@@ -166,7 +174,7 @@ const Navbar = () => {
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button 
-                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/20 hover:scale-105 transition-all"
+                className="gap-2 bg-white text-blue-600 hover:bg-white/90 hover:scale-105 transition-all font-medium"
                 onClick={handleReportClick}
               >
                 <Upload className="h-4 w-4" />
@@ -250,7 +258,7 @@ const Navbar = () => {
             <Link to="/login">
               <Button variant="outline" className="bg-white/20 hover:bg-white/30 text-white border-white/20 flex items-center gap-1.5 hover:scale-105 transition-all">
                 <LogIn className="h-4 w-4" />
-                <span className="hidden sm:inline">Login</span>
+                <span className="hidden sm:inline">Sign in</span>
               </Button>
             </Link>
           )}
