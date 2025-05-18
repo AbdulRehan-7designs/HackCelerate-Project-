@@ -20,7 +20,7 @@ const mockReports = [
     location: "123 Main St",
     date: "2023-05-10",
     votes: 15,
-    imageUrl: "https://source.unsplash.com/random/300x200/?pothole"
+    imageUrl: "https://www.bing.com/images/search?view=detailV2&ccid=a9oq90Cu&id=F3725D9E1AFB346C75E408157EC92FEF4BC21B19&thid=OIP.a9oq90CupsQCYTX6ihmY0AHaEK&mediaurl=https%3a%2f%2fwww.hindustantimes.com%2fht-img%2fimg%2f2023%2f07%2f18%2f1600x900%2fMumbai--India---July-18--2023---Huge-potholes-Seen_1689706903750.jpg&exph=900&expw=1600&q=pothhole+on+street+india&simid=608011407093275162&FORM=IRPRST&ck=7F72057DD9E3358822CBBF06AF01AF0C&selectedIndex=6&itb=0"
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ const mockReports = [
     location: "Oak Park, East Entrance",
     date: "2023-05-15",
     votes: 8,
-    imageUrl: "https://source.unsplash.com/random/300x200/?streetlight"
+    imageUrl: "https://www.bing.com/images/search?view=detailV2&ccid=8M0rM2sd&id=8E6524878C0CB6F51E911C509FCEA31B4E44F352&thid=OIP.8M0rM2sdczYAY_tX89PbtgHaEK&mediaurl=https%3a%2f%2fwww.hindustantimes.com%2fht-img%2fimg%2f2023%2f07%2f23%2f1600x900%2fA-non-functioning-street-light-at-southern-bypass-_1690134239324.jpg&exph=900&expw=1600&q=Broken+street+light++india&simid=607991585820640763&FORM=IRPRST&ck=0652503B4BACE304C5E7F0067905AFD7&selectedIndex=0&itb=0"
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const mockReports = [
     location: "45 Elm Street",
     date: "2023-05-01",
     votes: 12,
-    imageUrl: "https://source.unsplash.com/random/300x200/?tree"
+    imageUrl: "https://www.bing.com/images/search?view=detailV2&ccid=hSltZSVN&id=BE45115554E266D13A4787E1F73BA8D3E3CB4458&thid=OIP.hSltZSVNb3uzOMihquf8KwHaFj&mediaurl=https%3a%2f%2fthumbs.dreamstime.com%2fb%2ftree-fallen-road-amphan-india-west-bengal-tree-fallen-road-amphan-india-west-184504168.jpg&exph=600&expw=800&q=Fallen++tree++india&simid=608000179976734962&FORM=IRPRST&ck=1ECFAC3B1BFE7AAEE0545841C732B858&selectedIndex=2&itb=0"
   }
 ];
 

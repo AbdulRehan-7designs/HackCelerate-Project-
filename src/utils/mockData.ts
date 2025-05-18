@@ -68,8 +68,7 @@ export const mockIssues: IssueReport[] = [
       lng: 77.5946
     },
     images: [
-      "/placeholder.svg?text=Pothole+on+MG+Road",
-      "/placeholder.svg?text=Close-up+of+damage"
+      "https://www.bing.com/images/search?view=detailV2&ccid=c2cpRMKz&id=6D953139D66F8721817CBF015FA9C70C3207FA06&thid=OIP.c2cpRMKz3ZsTpS6wuz67vgHaDt&mediaurl=https%3a%2f%2flocalpress.co.in%2fwp-content%2fuploads%2f2018%2f12%2fin-india-potholes-killed-more-people-than-terrorists-in-last-5-years-optimized.jpg&exph=366&expw=732&q=pothholes+near+metro+india&simid=607998079795731686&FORM=IRPRST&ck=8AB084548D791ED614943467BC850805&selectedIndex=5&itb=0"
     ],
     aiTags: ["pothole", "road", "traffic hazard", "vehicle damage"]
   },
@@ -98,7 +97,7 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Amit K.",
     votes: 6,
-    location: "Carter Road, Bandra West, Mumbai",
+    location: "Tolichowki road ,below the bridge , Hyderabad",
     images: [
       "/placeholder.svg?text=Water+Leakage+Mumbai", 
       "/placeholder.svg?text=Broken+Pipe"

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,6 +13,7 @@ import MyReports from "./pages/MyReports";
 import Reports from "./pages/Reports";
 import OfficialLogin from "./pages/OfficialLogin";
 import CommunityStats from "./pages/CommunityStats";
+import AIInsights from "./pages/AIInsights";
 import FloatingChatbot from "./components/FloatingChatbot";
 
 const queryClient = new QueryClient({
@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/officials/login" element={<OfficialLogin />} />
             <Route path="/community-stats" element={<CommunityStats />} />
+            <Route path="/insights" element={<AIInsights />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
