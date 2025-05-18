@@ -13,8 +13,12 @@ import TabContent from "@/components/admin/TabContent";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import SettingsPanel from "@/components/admin/SettingsPanel";
 import { AIInsightsDashboard } from "@/components/admin/AIInsightsDashboard";
+import AdminAIAssistant from "@/components/admin/AdminAIAssistant";
+import InteractiveDataVisualizer from "@/components/admin/InteractiveDataVisualizer";
+import AutomatedPrioritizationSystem from "@/components/admin/AutomatedPrioritizationSystem";
+import VideoAnalyticsInsights from "@/components/admin/VideoAnalyticsInsights";
 
-// Admin component with the most essential functionality
+// Enhanced Admin component with interactive and AI features
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -53,11 +57,16 @@ const Admin = () => {
             </Link>
           </div>
           
+          {/* AI Assistant (always visible) */}
+          <AdminAIAssistant className="mb-6" />
+          
           <Tabs defaultValue="reports">
-            <TabsList>
+            <TabsList className="mb-4">
               <TabsTrigger value="reports">Reports</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+              <TabsTrigger value="automation">Automation</TabsTrigger>
+              <TabsTrigger value="video">Video Analytics</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -83,7 +92,10 @@ const Admin = () => {
                 title="Analytics Dashboard" 
                 description="View statistics and insights about reported issues."
               >
-                <AnalyticsDashboard />
+                <InteractiveDataVisualizer />
+                <div className="mt-6">
+                  <AnalyticsDashboard />
+                </div>
               </TabContent>
             </TabsContent>
             
@@ -93,6 +105,24 @@ const Admin = () => {
                 description="Advanced data analysis and intelligent insights for civic issues."
               >
                 <AIInsightsDashboard />
+              </TabContent>
+            </TabsContent>
+            
+            <TabsContent value="automation" className="pt-4">
+              <TabContent 
+                title="Automation Systems" 
+                description="Configure AI-driven workflow automation rules and systems."
+              >
+                <AutomatedPrioritizationSystem />
+              </TabContent>
+            </TabsContent>
+            
+            <TabsContent value="video" className="pt-4">
+              <TabContent 
+                title="Video Analytics" 
+                description="Analyze video reports using computer vision technology."
+              >
+                <VideoAnalyticsInsights />
               </TabContent>
             </TabsContent>
             
