@@ -50,7 +50,7 @@ const FloatingChatbot = () => {
     } else if (input.includes('light') || input.includes('streetlight') || input.includes('lamp')) {
       return 'Street light outages can be reported with the pole number if visible. The electrical maintenance team usually repairs these within 48-72 hours.';
     } else if (input.includes('how to report') || input.includes('submit') || input.includes('create report')) {
-      return 'To create a new report, go to the main page and click on "Report Issue". You'll need to provide details, location, and preferably photos of the issue.';
+      return 'To create a new report, go to the main page and click on "Report Issue". You\'ll need to provide details, location, and preferably photos of the issue.';
     } else if (input.includes('status') || input.includes('update') || input.includes('progress')) {
       return 'You can check the status of your reported issues in the "My Reports" section. Each report will show its current status: Reported, Verified, In Progress, or Resolved.';
     } else if (input.includes('contact') || input.includes('speak') || input.includes('human')) {
