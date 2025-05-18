@@ -1,14 +1,22 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, CheckCircle, Clock, AlertTriangle, Filter } from "lucide-react";
+import { MapPin, Calendar, CheckCircle, Clock, AlertTriangle, Filter, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
-import { mockIssues } from "@/utils/mockData";
+import { mockIssues, IssueReport, formatTimeAgo } from "@/utils/mockData";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import VoteButton from "@/components/VoteButton";
+import { IssueCardDetails } from "@/components/issue/IssueCardDetails";
 
-// Status helper functions - reused from MyReports
+// Status helper functions
 const getStatusColor = (status) => {
   switch (status) {
     case 'reported':
@@ -35,10 +43,24 @@ const getStatusIcon = (status) => {
   }
 };
 
+// Priority helper
+const getPriorityBadge = (votes) => {
+  if (votes >= 10) {
+    return <Badge className="bg-red-100 text-red-800 border-red-200">High Priority</Badge>;
+  } else if (votes >= 5) {
+    return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Medium Priority</Badge>;
+  }
+  return null;
+};
+
 const Reports = () => {
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState<IssueReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedIssue, setSelectedIssue] = useState<IssueReport | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'date' | 'priority'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -55,9 +77,19 @@ const Reports = () => {
     fetchReports();
   }, []);
 
-  const filteredReports = activeFilter === 'all' 
-    ? reports 
-    : reports.filter(report => report.status === activeFilter);
+  // Filter and sort reports
+  const processedReports = [...reports]
+    .filter(report => activeFilter === 'all' ? true : report.status === activeFilter)
+    .sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = new Date(a.reportedAt).getTime();
+        const dateB = new Date(b.reportedAt).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else {
+        // Sort by priority (votes)
+        return sortOrder === 'asc' ? a.votes - b.votes : b.votes - a.votes;
+      }
+    });
 
   const handleFilterChange = (filter) => {
     setActiveFilter(filter);
@@ -65,6 +97,20 @@ const Reports = () => {
       title: "Filter Applied",
       description: `Showing ${filter === 'all' ? 'all' : filter} reports`,
     });
+  };
+
+  const toggleSort = (newSortBy: 'date' | 'priority') => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('desc'); // Default to descending when changing sort type
+    }
+  };
+
+  const handleViewDetails = (issue: IssueReport) => {
+    setSelectedIssue(issue);
+    setIsDialogOpen(true);
   };
 
   return (
@@ -79,7 +125,7 @@ const Reports = () => {
               <p className="text-gray-500 mt-1">View and track all reported issues in your community</p>
             </div>
             
-            <div className="flex items-center space-x-2 mt-4 md:mt-0">
+            <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
               <Button
                 variant={activeFilter === 'all' ? "default" : "outline"}
                 className={activeFilter === 'all' ? "gradient-header" : ""}
@@ -108,6 +154,33 @@ const Reports = () => {
               >
                 Resolved
               </Button>
+              
+              <div className="flex items-center gap-2 ml-2 border-l pl-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleSort('date')}
+                  className={`flex items-center ${sortBy === 'date' ? 'text-primary' : ''}`}
+                >
+                  <Calendar className="h-4 w-4 mr-1" />
+                  Date
+                  {sortBy === 'date' && (
+                    <ArrowUpDown className="h-3 w-3 ml-1" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleSort('priority')}
+                  className={`flex items-center ${sortBy === 'priority' ? 'text-primary' : ''}`}
+                >
+                  <Filter className="h-4 w-4 mr-1" />
+                  Priority
+                  {sortBy === 'priority' && (
+                    <ArrowUpDown className="h-3 w-3 ml-1" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
           
@@ -119,14 +192,14 @@ const Reports = () => {
                 <div className="h-2 bg-gray-200 rounded w-32"></div>
               </div>
             </div>
-          ) : filteredReports.length === 0 ? (
+          ) : processedReports.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-gray-500 mb-4">No reports found</div>
               <Button className="gradient-header hover:opacity-90">Create a Report</Button>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 animate-fade-in stagger-children">
-              {filteredReports.map((report) => (
+              {processedReports.map((report) => (
                 <Card key={report.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                   <div className="aspect-video relative">
                     <img 
@@ -134,12 +207,15 @@ const Reports = () => {
                       alt={report.title} 
                       className="object-cover w-full h-full"
                     />
-                    <Badge 
-                      className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 ${getStatusColor(report.status)}`}
-                    >
-                      {getStatusIcon(report.status)}
-                      <span className="capitalize">{report.status.replace('-', ' ')}</span>
-                    </Badge>
+                    <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                      <Badge 
+                        className={`flex items-center gap-1 px-2 py-1 ${getStatusColor(report.status)}`}
+                      >
+                        {getStatusIcon(report.status)}
+                        <span className="capitalize">{report.status.replace('-', ' ')}</span>
+                      </Badge>
+                      {getPriorityBadge(report.votes)}
+                    </div>
                   </div>
                   
                   <CardHeader className="pb-2">
@@ -148,38 +224,36 @@ const Reports = () => {
                         {report.category}
                       </Badge>
                       <div className="text-sm text-gray-500 flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {report.date}
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatTimeAgo(report.reportedAt)}
                       </div>
                     </div>
                     <CardTitle className="text-xl mt-2">{report.title}</CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {report.description}
-                    </CardDescription>
                   </CardHeader>
                   
                   <CardContent className="pb-2">
+                    <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                      {report.description}
+                    </p>
                     <div className="flex items-center text-sm text-gray-500">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {/* Fix: Access the address property of the location object */}
                       {typeof report.location === 'object' ? report.location.address : report.location}
                     </div>
                   </CardContent>
                   
                   <CardFooter className="flex justify-between pt-2">
-                    <Button variant="outline" size="sm" className="text-sm">
+                    <div className="flex items-center">
+                      <VoteButton issueId={report.id} initialVotes={report.votes} />
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-sm"
+                      onClick={() => handleViewDetails(report)}
+                    >
                       View Details
                     </Button>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                          <path d="M7 10v12"></path>
-                          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
-                        </svg>
-                        {report.votes || 0}
-                      </Button>
-                    </div>
                   </CardFooter>
                 </Card>
               ))}
@@ -187,6 +261,23 @@ const Reports = () => {
           )}
         </div>
       </main>
+      
+      {/* Issue Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Issue Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedIssue && (
+            <IssueCardDetails
+              issue={selectedIssue}
+              onClose={() => setIsDialogOpen(false)}
+              getStatusClass={(status) => `status-${status}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">

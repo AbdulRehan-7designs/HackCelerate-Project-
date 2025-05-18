@@ -8,6 +8,8 @@ import { IssueMedia } from "./IssueMedia";
 import { IssueTagList } from "./IssueTagList";
 import { IssueAIInsights } from "./IssueAIInsights";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAIAnalysis } from "@/hooks/useAIAnalysis";
+import { useState, useEffect } from "react";
 
 interface IssueCardDetailsProps {
   issue: IssueReport;
@@ -20,6 +22,25 @@ export const IssueCardDetails = ({
   onClose, 
   getStatusClass 
 }: IssueCardDetailsProps) => {
+  const { analyzeIssue, fetchAnalysis, analysis, isAnalyzing } = useAIAnalysis();
+  const [hasCheckedAnalysis, setHasCheckedAnalysis] = useState(false);
+
+  useEffect(() => {
+    // Check if there's an existing analysis when the modal opens
+    const checkAnalysis = async () => {
+      if (!hasCheckedAnalysis) {
+        await fetchAnalysis(issue.id);
+        setHasCheckedAnalysis(true);
+      }
+    };
+    
+    checkAnalysis();
+  }, [issue.id, fetchAnalysis, hasCheckedAnalysis]);
+
+  const handleAnalyze = async () => {
+    await analyzeIssue(issue.id);
+  };
+  
   return (
     <div className="space-y-6">
       <div>
@@ -31,6 +52,16 @@ export const IssueCardDetails = ({
           <Badge variant="outline" className="bg-blue-50">
             {issue.category}
           </Badge>
+          {issue.votes >= 10 && (
+            <Badge className="bg-red-100 text-red-800 border-red-200">
+              High Priority
+            </Badge>
+          )}
+          {issue.votes >= 5 && issue.votes < 10 && (
+            <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+              Medium Priority
+            </Badge>
+          )}
         </div>
       </div>
       
@@ -78,6 +109,13 @@ export const IssueCardDetails = ({
         
         <TabsContent value="ai-insights">
           <IssueAIInsights issue={issue} />
+          {!analysis && !isAnalyzing && (
+            <div className="flex justify-center mt-4">
+              <Button onClick={handleAnalyze} className="bg-purple-600 hover:bg-purple-700">
+                Generate AI Analysis
+              </Button>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
       
