@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { issueCategories } from "@/utils/mockData";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2, Lightbulb, BrainCircuit, Sparkles, Tags, BadgeCheck } from "lucide-react";
+import { Upload, Loader2, Lightbulb, BrainCircuit, Sparkles, Tags, BadgeCheck, MapPin } from "lucide-react";
 import AIClassifier from './AIClassifier';
 import MultiMediaUploader from './MultiMediaUploader';
 import AreaSelector from './AreaSelector';
@@ -15,6 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { Progress } from './ui/progress';
+import GoogleMapSelector from './GoogleMapSelector';
+import VideoAIDetection, { DetectionResult } from './VideoAIDetection';
 
 interface MediaFile {
   type: 'image' | 'audio' | 'video';
@@ -35,6 +38,12 @@ interface AIRecommendation {
   priority?: number;
 }
 
+interface Location {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
 const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
@@ -47,6 +56,10 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
   const [permissionsRequested, setPermissionsRequested] = useState(false);
+  const [videoDetectionResults, setVideoDetectionResults] = useState<DetectionResult[]>([]);
+  const [location, setLocation] = useState<Location | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const { toast } = useToast();
 
   // Request relevant permissions when the form loads
@@ -69,7 +82,7 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
-    if (!title || !category || !description || !address || !area) {
+    if (!title || !category || !description || (!address && !location)) {
       toast({
         title: "Missing information",
         description: "Please fill in all required fields.",
@@ -96,13 +109,15 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
       setTimeout(() => {
         toast({
           title: "Location verified",
-          description: `${area.charAt(0).toUpperCase() + area.slice(1)} area confirmed`,
+          description: location 
+            ? `Location at ${location.address || `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`}`
+            : `${area.charAt(0).toUpperCase() + area.slice(1)} area confirmed`,
         });
         
         setTimeout(() => {
           toast({
             title: "Report submitted!",
-            description: "Your civic issue has been reported successfully.",
+            description: `Your civic issue has been reported successfully on ${currentDate.toLocaleDateString()}.`,
           });
           
           // Reset form
@@ -115,6 +130,8 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
           setAiTags([]);
           setAiRecommendation(null);
           setIsSubmitting(false);
+          setVideoDetectionResults([]);
+          setLocation(null);
           
           if (onSubmitSuccess) {
             onSubmitSuccess();
@@ -229,6 +246,39 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
   const handleAddressChange = (detectedAddress: string) => {
     setAddress(detectedAddress);
   };
+
+  const handleLocationSelected = (newLocation: Location) => {
+    setLocation(newLocation);
+    if (newLocation.address) {
+      setAddress(newLocation.address);
+    }
+    toast({
+      title: "Location Selected",
+      description: newLocation.address || `Coordinates: ${newLocation.lat.toFixed(6)}, ${newLocation.lng.toFixed(6)}`,
+    });
+  };
+
+  const handleVideoDetections = (results: DetectionResult[]) => {
+    setVideoDetectionResults(results);
+    
+    // Update tags with detected objects
+    const newTags = [...aiTags];
+    
+    results.forEach(result => {
+      if (!newTags.includes(result.label)) {
+        newTags.push(result.label);
+      }
+    });
+    
+    if (newTags.length > aiTags.length) {
+      setAiTags(newTags);
+      
+      // If we don't have a category yet, process with AI
+      if (!category) {
+        processWithAI(newTags);
+      }
+    }
+  };
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
@@ -324,15 +374,51 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
-          <Input
-            id="location"
-            placeholder="Street address or precise location"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            className="border-civic-blue/30 focus:border-civic-blue"
-          />
+          <div className="flex justify-between items-center">
+            <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={() => setShowMap(!showMap)}
+            >
+              <MapPin className="h-4 w-4" />
+              {showMap ? "Hide Map" : "Show Map"}
+            </Button>
+          </div>
+          
+          {!showMap ? (
+            <Input
+              id="location"
+              placeholder="Street address or precise location"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required={!location}
+              className="border-civic-blue/30 focus:border-civic-blue"
+            />
+          ) : (
+            <div className="mt-2 bg-gray-50 p-1 rounded-md border">
+              <GoogleMapSelector 
+                onLocationSelected={handleLocationSelected}
+                initialLocation={location || undefined}
+                height="350px"
+              />
+              {location && (
+                <div className="text-sm p-2">
+                  <div className="font-medium">Selected Location:</div>
+                  <div>{location.address || `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label>Report Date</Label>
+            <div className="text-sm font-medium">{currentDate.toLocaleDateString()}</div>
+          </div>
         </div>
         
         <div className="space-y-2">
@@ -340,6 +426,11 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
             onMediaChange={setMedia} 
             initialMedia={media}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Video AI Detection</Label>
+          <VideoAIDetection onDetectionResults={handleVideoDetections} />
         </div>
         
         {media?.type === 'image' ? (
@@ -385,7 +476,7 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
                       <Badge 
                         key={altCat} 
                         variant="outline" 
-                        className="bg-gray-50 text-gray-700"
+                        className="bg-gray-50 text-gray-700 cursor-pointer"
                         onClick={() => setCategory(altCat)}
                       >
                         {altCat} ({Math.round(confidence * 100)}%)
@@ -397,6 +488,34 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
             </Card>
           </>
         ) : null}
+
+        {videoDetectionResults.length > 0 && (
+          <Card className="p-4 border-dashed border-2 border-purple-200 bg-purple-50/50">
+            <div className="flex items-center mb-3">
+              <BrainCircuit className="h-5 w-5 text-purple-500 mr-2" />
+              <h3 className="font-medium">Video Analysis Results</h3>
+            </div>
+            
+            <div className="space-y-2">
+              {videoDetectionResults.map((result, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex justify-between items-center p-2 bg-white rounded-md"
+                >
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium">{result.label}</span>
+                    <Badge variant="outline" className="ml-2">
+                      {Math.round(result.confidence * 100)}%
+                    </Badge>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    at {result.timestamp.toFixed(1)}s
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
       </div>
       
       <div className="flex justify-end">

@@ -1,388 +1,353 @@
 
-import { formatDistance } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 export interface IssueReport {
   id: string;
   title: string;
   description: string;
   category: string;
-  location: {
-    address: string;
-    lat: number;
-    lng: number;
-  } | string;
-  status: 'reported' | 'verified' | 'in-progress' | 'resolved' | 'fake' | 'new';
+  status: 'reported' | 'verified' | 'in-progress' | 'resolved';
+  reportedAt: string;
+  reportedBy: string;
   votes: number;
-  images: string[];
+  location: string | { address: string; lat: number; lng: number };
+  images?: string[];
   videos?: string[];
   audio?: string[];
-  reportedBy: string;
-  reportedAt: Date;
-  updatedAt: Date;
   aiTags?: string[];
-  comments?: Comment[];
 }
 
-export interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: Date;
-}
-
-export const issueCategories = [
-  'Road Damage',
-  'Garbage & Waste',
-  'Water Leakage',
-  'Street Light Issue',
-  'Drainage Blockage',
-  'Tree Hazard',
-  'Graffiti',
-  'Abandoned Vehicle',
-  'Noise Complaint',
-  'Sidewalk Damage',
-  'Traffic Signal Issue',
-  'Park Maintenance',
-  'Public Property Damage',
-  'Illegal Dumping',
-  'Animal Control',
-  'Pest Control',
-  'Snow Removal',
-  'Public Safety Concern',
-  'Parking Violation',
-  'Water Pollution',
-  'Electricity Issues',
-  'Encroachment',
-  'Public Transport',
-  'Sewage Problem',
-  'Other'
-];
-
-export const statusOptions = [
-  { value: 'new', label: 'New' },
-  { value: 'verified', label: 'Verified' },
-  { value: 'in-progress', label: 'In Progress' },
-  { value: 'resolved', label: 'Resolved' }
-];
-
-export const formatTimeAgo = (date: Date): string => {
-  return formatDistance(new Date(date), new Date(), { addSuffix: true });
+// Format time ago helper
+export const formatTimeAgo = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  let interval = seconds / 31536000;
+  if (interval > 1) {
+    return Math.floor(interval) + " years ago";
+  }
+  
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + " months ago";
+  }
+  
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + " days ago";
+  }
+  
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + " hours ago";
+  }
+  
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes ago";
+  }
+  
+  return Math.floor(seconds) + " seconds ago";
 };
 
+// Mock data for Indian civic issues
 export const mockIssues: IssueReport[] = [
   {
-    id: '1',
-    title: 'Pothole on Main Street',
-    description: 'Large pothole that could damage vehicles. About 2 feet wide and 6 inches deep.',
-    category: 'Road Damage',
-    location: {
-      address: '123 Main St, Springfield',
-      lat: 40.7128,
-      lng: -74.006
-    },
-    status: 'verified',
-    votes: 15,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'john_doe',
-    reportedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['pothole', 'road', 'hazard'],
-    comments: [
-      {
-        id: 'c1',
-        text: 'I drive by this every day, it\'s getting worse!',
-        author: 'concerned_citizen',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      }
-    ]
-  },
-  {
-    id: '2',
-    title: 'Overflowing trash bin at Central Park',
-    description: 'The trash bin near the east entrance is overflowing. Garbage is spreading around the area.',
-    category: 'Garbage & Waste',
-    location: {
-      address: 'Central Park East Entrance',
-      lat: 40.7736,
-      lng: -73.9712
-    },
-    status: 'reported',
-    votes: 7,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'park_lover',
-    reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['garbage', 'trash', 'park'],
-  },
-  {
-    id: '3',
-    title: 'Broken street light on Elm Street',
-    description: 'Street light has been out for over a week, making the area dark and unsafe at night.',
-    category: 'Street Light Issue',
-    location: {
-      address: '456 Elm St, Springfield',
-      lat: 40.7282,
-      lng: -73.996
-    },
-    status: 'in-progress',
-    votes: 23,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'night_walker',
-    reportedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['streetlight', 'darkness', 'safety'],
-    comments: [
-      {
-        id: 'c2',
-        text: 'This is dangerous for pedestrians!',
-        author: 'safety_first',
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 'c3',
-        text: 'I saw a crew looking at it yesterday.',
-        author: 'local_resident',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      }
-    ]
-  },
-  {
-    id: '4',
-    title: 'Drainage blockage causing flooding',
-    description: 'Heavy rain is causing flooding because the storm drain is blocked with debris.',
-    category: 'Drainage Blockage',
-    location: {
-      address: '789 Oak Ave, Springfield',
-      lat: 40.7328,
-      lng: -74.016
-    },
-    status: 'reported',
-    votes: 19,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'concerned_neighbor',
-    reportedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    aiTags: ['flooding', 'drain', 'water'],
-  },
-  {
-    id: '5',
-    title: 'Fallen tree blocking sidewalk',
-    description: 'A large tree branch has fallen and is completely blocking the sidewalk.',
-    category: 'Tree Hazard',
-    location: {
-      address: '101 Pine St, Springfield',
-      lat: 40.7218,
-      lng: -74.001
-    },
-    status: 'resolved',
+    id: "issue-1",
+    title: "Large pothole on MG Road near Metro Station",
+    description: "There's a large pothole on MG Road near the Metro Station entrance that is causing traffic congestion and is dangerous for two-wheelers. Multiple accidents have been reported here in the past week.",
+    category: "Road Damage",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Rahul S.",
     votes: 12,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'daily_jogger',
-    reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['tree', 'obstruction', 'sidewalk'],
-    comments: [
-      {
-        id: 'c4',
-        text: 'Thank you for the quick response in clearing this!',
-        author: 'grateful_citizen',
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-      }
-    ]
-  },
-  // Adding Indian civic issues with more realistic data
-  {
-    id: '6',
-    title: 'Waterlogging in Mumbai Suburbs',
-    description: 'Severe waterlogging after monsoon rain has blocked the entire road. Vehicles stuck and pedestrians unable to pass.',
-    category: 'Drainage Blockage',
     location: {
-      address: 'Andheri West, Mumbai, Maharashtra',
-      lat: 19.1136,
-      lng: 72.8697
+      address: "MG Road, Near Metro Station, Bengaluru",
+      lat: 12.9716,
+      lng: 77.5946
     },
-    status: 'in-progress',
-    votes: 42,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'mumbai_resident',
-    reportedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['monsoon', 'flooding', 'infrastructure', 'drainage'],
-    comments: [
-      {
-        id: 'c5',
-        text: 'This happens every year! When will BMC improve the drainage system?',
-        author: 'frustrated_commuter',
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 'c6',
-        text: 'Municipal workers are pumping water now, should be clear by evening.',
-        author: 'local_update',
-        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
-      }
-    ]
+    images: [
+      "/placeholder.svg?text=Pothole+on+MG+Road",
+      "/placeholder.svg?text=Close-up+of+damage"
+    ],
+    aiTags: ["pothole", "road", "traffic hazard", "vehicle damage"]
   },
   {
-    id: '7',
-    title: 'Garbage Mountain at Ghazipur Landfill',
-    description: 'The landfill height has increased again and foul smell is affecting all nearby residential areas. Health hazard for thousands.',
-    category: 'Garbage & Waste',
-    location: {
-      address: 'Ghazipur, East Delhi, Delhi',
-      lat: 28.6354,
-      lng: 77.3261
-    },
-    status: 'verified',
-    votes: 78,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'delhi_activist',
-    reportedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    aiTags: ['landfill', 'pollution', 'public health', 'waste management'],
-    comments: [
-      {
-        id: 'c7',
-        text: 'This is a serious environmental hazard that needs immediate attention!',
-        author: 'environmental_scientist',
-        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
-      }
-    ]
+    id: "issue-2",
+    title: "Garbage pile-up near Lajpat Nagar Market",
+    description: "Waste has not been collected for over a week at the Lajpat Nagar Market. The garbage is spilling onto the street and causing foul smell in the entire area. This is becoming a health hazard for shoppers and residents.",
+    category: "Garbage & Waste",
+    status: "verified",
+    reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Priya M.",
+    votes: 8,
+    location: "Lajpat Nagar Market, New Delhi",
+    images: [
+      "/placeholder.svg?text=Garbage+Pile+Delhi", 
+      "/placeholder.svg?text=Market+Area+Waste"
+    ],
+    aiTags: ["garbage", "waste", "public health", "sanitation"]
   },
   {
-    id: '8',
-    title: 'Open Sewage Line in Chennai Neighborhood',
-    description: 'Sewage line has been open for weeks now. Strong smell and mosquitoes becoming unbearable for residents.',
-    category: 'Sewage Problem',
-    location: {
-      address: 'Velachery, Chennai, Tamil Nadu',
-      lat: 12.9815,
-      lng: 80.2180
-    },
-    status: 'reported',
-    votes: 27,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'chennai_local',
-    reportedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-    aiTags: ['sewage', 'sanitation', 'public health', 'infrastructure'],
+    id: "issue-3",
+    title: "Water leakage on Carter Road",
+    description: "There's been continuous water leakage from a broken pipe on Carter Road for the past three days. This is causing water wastage and making the road slippery. The road is partially flooded now.",
+    category: "Water Leakage",
+    status: "in-progress",
+    reportedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Amit K.",
+    votes: 6,
+    location: "Carter Road, Bandra West, Mumbai",
+    images: [
+      "/placeholder.svg?text=Water+Leakage+Mumbai", 
+      "/placeholder.svg?text=Broken+Pipe"
+    ],
+    videos: [
+      "/placeholder.svg?text=Water+Flow+Video"
+    ],
+    aiTags: ["water leakage", "pipe", "flooding", "road hazard"]
   },
   {
-    id: '9',
-    title: 'Stray Cattle on Pune Highway',
-    description: 'Large number of stray cattle sitting in the middle of Pune-Mumbai highway causing traffic jams and accidents.',
-    category: 'Animal Control',
-    location: {
-      address: 'Expressway, Pune, Maharashtra',
-      lat: 18.5204,
-      lng: 73.8567
-    },
-    status: 'in-progress',
-    votes: 31,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'daily_commuter',
-    reportedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['road safety', 'stray animals', 'traffic', 'transportation'],
+    id: "issue-4",
+    title: "Non-functioning street lights near Shivaji Park",
+    description: "Multiple street lights near Shivaji Park have not been working for over two weeks now. The area becomes very dark at night making it unsafe for pedestrians and increasing risk of accidents. Urgent repair needed.",
+    category: "Street Light Issue",
+    status: "resolved",
+    reportedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Sunita P.",
+    votes: 5,
+    location: "Shivaji Park, Dadar, Mumbai",
+    images: ["/placeholder.svg?text=Dark+Street+Mumbai"],
+    aiTags: ["street light", "safety hazard", "night", "electrical"]
   },
   {
-    id: '10',
-    title: 'Illegal Encroachment on Hyderabad Footpath',
-    description: 'Shops have extended onto the footpath completely blocking pedestrian movement. Forcing people to walk on busy road.',
-    category: 'Encroachment',
-    location: {
-      address: 'Ameerpet, Hyderabad, Telangana',
-      lat: 17.4380,
-      lng: 78.4480
-    },
-    status: 'verified',
-    votes: 45,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'citizen_rights',
-    reportedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    aiTags: ['pedestrian safety', 'urban planning', 'public space', 'law enforcement'],
-    comments: [
-      {
-        id: 'c8',
-        text: 'I was almost hit by a car yesterday because I had to walk on the road!',
-        author: 'worried_pedestrian',
-        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
-      }
-    ]
+    id: "issue-5",
+    title: "Collapsed drainage system in Sector 18",
+    description: "The drainage system in Sector 18 near the market has collapsed causing sewage overflow onto the main road. The stench is unbearable and it's creating unhygienic conditions for the nearby food stalls and residents.",
+    category: "Drainage Issue",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Vikram S.",
+    votes: 10,
+    location: "Sector 18, Noida, Uttar Pradesh",
+    images: [
+      "/placeholder.svg?text=Drainage+Issue+Noida",
+      "/placeholder.svg?text=Sewage+Overflow"
+    ],
+    aiTags: ["drainage", "sewage", "public health", "infrastructure"]
   },
   {
-    id: '11',
-    title: 'Power Outages in Kolkata Neighborhood',
-    description: 'Frequent power cuts lasting 4-5 hours daily for the past week. Work from home and online classes severely affected.',
-    category: 'Electricity Issues',
-    location: {
-      address: 'Salt Lake, Kolkata, West Bengal',
-      lat: 22.5726,
-      lng: 88.4251
-    },
-    status: 'verified',
-    votes: 56,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'work_from_home',
-    reportedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    aiTags: ['electricity', 'infrastructure', 'utilities', 'public services'],
+    id: "issue-6",
+    title: "Damaged footpath near Gandhi Bazaar",
+    description: "The footpath near Gandhi Bazaar has large cracks and uneven surfaces making it difficult for pedestrians, especially the elderly to walk safely. Some sections have been completely broken exposing underground wires.",
+    category: "Sidewalk Damage",
+    status: "in-progress",
+    reportedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Deepak R.",
+    votes: 7,
+    location: "Gandhi Bazaar, Basavanagudi, Bengaluru",
+    images: [
+      "/placeholder.svg?text=Broken+Sidewalk+Bengaluru",
+      "/placeholder.svg?text=Exposed+Wires"
+    ],
+    aiTags: ["footpath", "pedestrian safety", "accessibility", "infrastructure damage"]
   },
   {
-    id: '12',
-    title: 'Contaminated Water Supply in Jaipur',
-    description: 'Tap water has turned yellowish with foul smell. Multiple families reporting stomach illness in the neighborhood.',
-    category: 'Water Pollution',
+    id: "issue-7",
+    title: "Dangerous open manholes on JM Road",
+    description: "There are three open manholes on JM Road without any warning signs or barricades. This is extremely dangerous for pedestrians and vehicles, especially at night. The issue was first reported a month ago but still not fixed.",
+    category: "Safety Hazard",
+    status: "verified",
+    reportedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Nisha J.",
+    votes: 15,
+    location: "JM Road, Pune, Maharashtra",
+    images: [
+      "/placeholder.svg?text=Open+Manholes+Pune", 
+      "/placeholder.svg?text=Road+Hazard"
+    ],
+    aiTags: ["manhole", "road safety", "accident risk", "civic negligence"]
+  },
+  {
+    id: "issue-8",
+    title: "Illegal dumping of industrial waste in Yamuna river",
+    description: "Several factories are dumping untreated industrial waste directly into the Yamuna river near Kalindi Kunj. The water has turned dark and has a chemical smell. This is causing severe pollution and affecting marine life.",
+    category: "Environmental Hazard",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Arjun M.",
+    votes: 18,
+    location: "Kalindi Kunj, Delhi-Noida border",
+    images: [
+      "/placeholder.svg?text=Yamuna+Pollution", 
+      "/placeholder.svg?text=Industrial+Waste"
+    ],
+    videos: [
+      "/placeholder.svg?text=Factory+Dumping+Video"
+    ],
+    aiTags: ["water pollution", "industrial waste", "river", "environmental impact"]
+  },
+  {
+    id: "issue-9",
+    title: "Fallen tree blocking road in Salt Lake",
+    description: "A large tree has fallen across the road in Salt Lake Sector 5 after last night's heavy storm. It's completely blocking the road and has damaged electric lines. Municipal workers were informed but no action taken yet.",
+    category: "Tree Hazard",
+    status: "in-progress",
+    reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Sanjay D.",
+    votes: 9,
+    location: "Salt Lake Sector 5, Kolkata",
+    images: [
+      "/placeholder.svg?text=Fallen+Tree+Kolkata", 
+      "/placeholder.svg?text=Blocked+Road"
+    ],
+    aiTags: ["fallen tree", "road block", "electric lines", "storm damage"]
+  },
+  {
+    id: "issue-10",
+    title: "Public toilet in disrepair at Chennai Central Station",
+    description: "The public toilet at Chennai Central Station platform 1 is in extremely poor condition. No water supply, broken doors, and extremely unhygienic conditions. Thousands of passengers use this station daily and this is causing great inconvenience.",
+    category: "Public Facility",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Lakshmi N.",
+    votes: 12,
+    location: "Chennai Central Railway Station, Platform 1",
+    images: ["/placeholder.svg?text=Toilet+Condition+Chennai"],
+    aiTags: ["public toilet", "sanitation", "public facility", "hygiene", "railway station"]
+  },
+  {
+    id: "issue-11",
+    title: "Stray dog menace near Indira Nagar Park",
+    description: "There is a growing concern about aggressive stray dogs near Indira Nagar Park. Several children and morning walkers have been chased and some even bitten. The pack has grown to over 10 dogs and they become particularly aggressive in the evenings.",
+    category: "Animal Control",
+    status: "verified",
+    reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Mohan G.",
+    votes: 14,
+    location: "Indira Nagar, Lucknow",
+    images: ["/placeholder.svg?text=Stray+Dogs+Lucknow"],
+    aiTags: ["stray dogs", "public safety", "park", "animal control"]
+  },
+  {
+    id: "issue-12",
+    title: "Traffic signal malfunction at LB Nagar junction",
+    description: "The traffic signal at the LB Nagar junction has been malfunctioning for the past week. It randomly switches between colors causing confusion and traffic jams. During peak hours, the situation becomes chaotic and dangerous.",
+    category: "Traffic Infrastructure",
+    status: "in-progress",
+    reportedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Ravi T.",
+    votes: 11,
     location: {
-      address: 'Malviya Nagar, Jaipur, Rajasthan',
-      lat: 26.8612,
-      lng: 75.8010
+      address: "LB Nagar Junction, Hyderabad",
+      lat: 17.3616, 
+      lng: 78.5455
     },
-    status: 'in-progress',
-    votes: 67,
-    images: ['/placeholder.svg'],
-    videos: [],
-    audio: [],
-    reportedBy: 'concerned_parent',
-    reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    aiTags: ['water quality', 'public health', 'sanitation', 'municipal services'],
-    comments: [
-      {
-        id: 'c9',
-        text: 'My child fell sick after drinking this water. This is unacceptable!',
-        author: 'angry_mother',
-        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 'c10',
-        text: 'Water testing team visited today and took samples.',
-        author: 'neighborhood_watch',
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-      }
-    ]
+    images: ["/placeholder.svg?text=Traffic+Signal+Hyderabad"],
+    videos: ["/placeholder.svg?text=Junction+Traffic+Video"],
+    aiTags: ["traffic signal", "road safety", "junction", "infrastructure"]
+  },
+  {
+    id: "issue-13",
+    title: "School zone without speed breakers or signs in Shimla",
+    description: "There are no speed breakers or warning signs near the Government School in Lower Bazaar, Shimla. Vehicles speed through this area where children cross the road daily. This is an accident waiting to happen and needs immediate attention.",
+    category: "Road Safety",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Vimala S.",
+    votes: 8,
+    location: "Lower Bazaar, Near Government School, Shimla",
+    images: ["/placeholder.svg?text=School+Zone+Shimla"],
+    aiTags: ["school zone", "road safety", "speed breakers", "children"]
+  },
+  {
+    id: "issue-14",
+    title: "Overflowing sewage in Kharadi IT Park area",
+    description: "The sewage system in Kharadi IT Park area has been overflowing for the past three days. Waste water is accumulating on the main road making it difficult for pedestrians and causing health concerns. The stench is affecting nearby offices and residential areas.",
+    category: "Sewage Issue",
+    status: "resolved",
+    reportedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Aditya P.",
+    votes: 9,
+    location: "Kharadi IT Park, Pune",
+    images: [
+      "/placeholder.svg?text=Sewage+Overflow+Pune",
+      "/placeholder.svg?text=Affected+Road"
+    ],
+    aiTags: ["sewage", "water logging", "sanitation", "IT park"]
+  },
+  {
+    id: "issue-15",
+    title: "Illegal encroachment on public pathway in Connaught Place",
+    description: "Several vendors have illegally encroached upon the public pathway in Connaught Place's inner circle. This has reduced the walking space for pedestrians to less than 2 feet in some places, forcing people to walk on the main road risking accidents.",
+    category: "Encroachment",
+    status: "reported",
+    reportedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    reportedBy: "Rajesh K.",
+    votes: 7,
+    location: {
+      address: "Inner Circle, Connaught Place, New Delhi",
+      lat: 28.6315, 
+      lng: 77.2167
+    },
+    images: [
+      "/placeholder.svg?text=Encroachment+Delhi",
+      "/placeholder.svg?text=Narrow+Pathway"
+    ],
+    aiTags: ["encroachment", "public space", "pedestrian safety", "urban planning"]
   }
 ];
+
+export const issueCategories = [
+  "Road Damage",
+  "Garbage & Waste",
+  "Water Leakage",
+  "Street Light Issue",
+  "Tree Hazard",
+  "Environmental Hazard",
+  "Drainage Issue",
+  "Sidewalk Damage",
+  "Traffic Infrastructure",
+  "Public Facility",
+  "Safety Hazard",
+  "Animal Control",
+  "Encroachment",
+  "Sewage Issue",
+  "Road Safety"
+];
+
+export const useVotes = (issueId: string, initialVotes: number) => {
+  const [votes, setVotes] = useState(initialVotes);
+  const [hasVoted, setHasVoted] = useState(false);
+
+  useEffect(() => {
+    // Check if the user has already voted on this issue
+    const votedIssues = localStorage.getItem('votedIssues');
+    if (votedIssues) {
+      const parsedVotedIssues = JSON.parse(votedIssues);
+      setHasVoted(parsedVotedIssues.includes(issueId));
+    }
+  }, [issueId]);
+
+  const vote = async () => {
+    if (hasVoted) {
+      return;
+    }
+
+    // In a real app, this would call an API
+    setVotes(votes + 1);
+    setHasVoted(true);
+
+    // Store that the user has voted on this issue
+    const votedIssues = localStorage.getItem('votedIssues');
+    if (votedIssues) {
+      const parsedVotedIssues = JSON.parse(votedIssues);
+      localStorage.setItem('votedIssues', JSON.stringify([...parsedVotedIssues, issueId]));
+    } else {
+      localStorage.setItem('votedIssues', JSON.stringify([issueId]));
+    }
+  };
+
+  return { votes, hasVoted, vote };
+};

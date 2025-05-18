@@ -16,7 +16,14 @@ import OfficialLogin from "./pages/OfficialLogin";
 import CommunityStats from "./pages/CommunityStats";
 import FloatingChatbot from "./components/FloatingChatbot";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
