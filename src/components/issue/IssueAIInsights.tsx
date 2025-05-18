@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { AIAnalysis, useAIAnalysis } from '@/hooks/useAIAnalysis';
+import { useAIAnalysis } from '@/hooks/useAIAnalysis';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
