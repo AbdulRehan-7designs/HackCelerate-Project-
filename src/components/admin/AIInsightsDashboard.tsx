@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,11 +48,11 @@ export const AIInsightsDashboard = () => {
         if (error) throw error;
         
         // Process priority distribution
-        const priorityCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        const priorityCount: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
         analyses?.forEach(analysis => {
           if (analysis.priority_score) {
-            priorityCount[analysis.priority_score] = 
-              (priorityCount[analysis.priority_score] || 0) + 1;
+            const key = String(analysis.priority_score);
+            priorityCount[key] = (priorityCount[key] || 0) + 1;
           }
         });
         
@@ -66,7 +65,7 @@ export const AIInsightsDashboard = () => {
         setPriorityData(priorityChartData);
         
         // Process category distribution
-        const categoryCount = {};
+        const categoryCount: Record<string, number> = {};
         analyses?.forEach(analysis => {
           if (analysis.predicted_category) {
             categoryCount[analysis.predicted_category] = 
@@ -85,7 +84,7 @@ export const AIInsightsDashboard = () => {
         setCategoryData(categoryChartData);
         
         // Process department distribution
-        const deptCount = {};
+        const deptCount: Record<string, number> = {};
         analyses?.forEach(analysis => {
           if (analysis.assigned_departments) {
             analysis.assigned_departments.forEach(dept => {
@@ -229,7 +228,8 @@ export const AIInsightsDashboard = () => {
                     <span className="font-medium">{dept.count} issues</span>
                   </div>
                   <Progress 
-                    value={dept.count / Math.max(...departmentData.map(d => d.count)) * 100} 
+                    value={Math.max(...departmentData.map(d => d.count)) > 0 ? 
+                      (dept.count / Math.max(...departmentData.map(d => d.count)) * 100) : 0} 
                     className="h-2" 
                     indicatorClassName={`${i % 2 === 0 ? 'bg-blue-500' : 'bg-purple-500'}`}
                   />

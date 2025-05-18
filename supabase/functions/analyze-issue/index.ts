@@ -1,7 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.8.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.4.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,267 +9,242 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // CORS preflight
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get the issue data from the request
-    const { issueId } = await req.json();
+    // Create a Supabase client with the Auth context of the logged in user
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
 
+    // Parse request body
+    const { issueId } = await req.json();
+    
     if (!issueId) {
       return new Response(
-        JSON.stringify({ error: "Issue ID is required" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Issue ID is required' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Get the issue from the database
-    const { data: issue, error: issueError } = await supabaseClient
+    // Fetch issue details
+    const { data: issueData, error: issueError } = await supabaseClient
       .from('issues')
       .select('*')
       .eq('id', issueId)
       .single();
 
     if (issueError) {
+      console.error('Error fetching issue:', issueError);
       return new Response(
-        JSON.stringify({ error: issueError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Failed to fetch issue details' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Mock AI analysis (in a real app, this would call external AI APIs)
-    // Analyze title and description for category prediction
-    const predictedCategory = mockPredictCategory(issue.title, issue.description);
-    const confidence = Math.random() * 0.4 + 0.6; // Random confidence between 0.6 and 1.0
-    
-    const alternativeCategories = mockAlternativeCategories(issue.category);
-    const extractedKeywords = mockExtractKeywords(issue.title, issue.description);
-    
-    // Find similar issues (in a real app, this would use semantic similarity)
+    // Fetch similar issues
     const { data: similarIssues, error: similarError } = await supabaseClient
       .from('issues')
-      .select('id, title, description, location')
-      .eq('category', issue.category)
+      .select('id, title, description, category')
+      .eq('category', issueData.category)
       .neq('id', issueId)
       .limit(3);
 
-    if (similarError) {
-      console.error("Error fetching similar issues:", similarError);
-    }
+    // Generate simulated AI analysis
+    const analysis = {
+      issue_id: issueId,
+      predicted_category: issueData.category,
+      category_confidence: 0.85 + (Math.random() * 0.15),
+      alternative_categories: generateAlternativeCategories(issueData.category),
+      extracted_keywords: extractKeywords(issueData.description),
+      similar_issue_ids: similarIssues?.map(issue => issue.id) || [],
+      similarity_scores: generateSimilarityScores(similarIssues),
+      duplicate_score: 0.15 + (Math.random() * 0.25),
+      priority_score: calculatePriorityScore(issueData),
+      impact_assessment: generateImpactAssessment(issueData),
+      urgency_level: determineUrgencyLevel(issueData),
+      assigned_departments: assignDepartments(issueData.category),
+      estimated_response_time: estimateResponseTime(issueData),
+      resource_requirements: calculateResourceRequirements(issueData),
+      detected_patterns: {},
+      seasonal_factors: {},
+      trend_indicators: {}
+    };
 
-    const similarIssueIds = similarIssues?.map(si => si.id) || [];
-    const similarityScores = {};
-    similarIssueIds.forEach(id => {
-      similarityScores[id] = (Math.random() * 0.5 + 0.3).toFixed(2); // Random score between 0.3 and 0.8
-    });
-
-    // Calculate priority score based on various factors
-    const priorityScore = mockCalculatePriority(issue);
-    
-    // Estimate departments that should handle this issue
-    const assignedDepartments = mockAssignDepartments(issue.category);
-    
-    // Store the AI analysis result
-    const { data: analysis, error: analysisError } = await supabaseClient
+    // Store the analysis in the database
+    const { data: savedAnalysis, error: saveError } = await supabaseClient
       .from('ai_analyses')
-      .insert({
-        issue_id: issueId,
-        predicted_category: predictedCategory,
-        category_confidence: confidence,
-        alternative_categories: alternativeCategories,
-        extracted_keywords: extractedKeywords,
-        similar_issue_ids: similarIssueIds,
-        similarity_scores: similarityScores,
-        duplicate_score: similarIssueIds.length > 0 ? Math.random() * 0.7 : 0,
-        priority_score: priorityScore,
-        impact_assessment: mockImpactAssessment(priorityScore),
-        urgency_level: mockUrgencyLevel(priorityScore),
-        assigned_departments: assignedDepartments,
-        estimated_response_time: Math.floor(Math.random() * 48) + 24, // 24-72 hours
-        resource_requirements: mockResourceRequirements(issue.category)
-      })
+      .insert(analysis)
       .select()
       .single();
 
-    if (analysisError) {
+    if (saveError) {
+      console.error('Error saving analysis:', saveError);
       return new Response(
-        JSON.stringify({ error: analysisError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Failed to save analysis' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
+    // Return the analysis
     return new Response(
-      JSON.stringify({ success: true, analysis }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ analysis: savedAnalysis }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
+
   } catch (error) {
+    console.error('Error in analyze-issue function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
 
-// Mock functions for AI analysis (would be replaced with actual AI API calls)
-function mockPredictCategory(title: string, description: string): string {
+// Helper functions for simulation
+function generateAlternativeCategories(mainCategory: string) {
   const categories = [
-    "Road Damage", "Street Light Issue", "Garbage & Waste", 
-    "Water Leakage", "Graffiti", "Drainage Blockage", 
-    "Tree Hazard", "Sidewalk Damage"
+    'Road Damage', 'Water Leakage', 'Garbage & Waste', 
+    'Street Light Issue', 'Tree Hazard', 'Graffiti', 
+    'Park Maintenance', 'Sidewalk Damage'
   ];
   
-  // Very basic keyword matching (in a real app, would use ML model)
-  if (title.toLowerCase().includes("pothole") || description.toLowerCase().includes("pothole")) {
-    return "Road Damage";
-  } else if (title.toLowerCase().includes("light") || description.toLowerCase().includes("light")) {
-    return "Street Light Issue";
-  } else if (title.toLowerCase().includes("trash") || description.toLowerCase().includes("trash") || 
-             title.toLowerCase().includes("garbage") || description.toLowerCase().includes("garbage")) {
-    return "Garbage & Waste";
-  } else if (title.toLowerCase().includes("water") || description.toLowerCase().includes("water") ||
-             title.toLowerCase().includes("leak") || description.toLowerCase().includes("leak")) {
-    return "Water Leakage";
-  } else if (title.toLowerCase().includes("tree") || description.toLowerCase().includes("tree") ||
-             title.toLowerCase().includes("branch") || description.toLowerCase().includes("branch")) {
-    return "Tree Hazard";
-  }
+  const alternatives: Record<string, number> = {};
+  const filtered = categories.filter(cat => cat !== mainCategory);
   
-  // If no keyword match, return a random category
-  return categories[Math.floor(Math.random() * categories.length)];
-}
-
-function mockAlternativeCategories(mainCategory: string): Record<string, number> {
-  const categories = [
-    "Road Damage", "Street Light Issue", "Garbage & Waste", 
-    "Water Leakage", "Graffiti", "Drainage Blockage", 
-    "Tree Hazard", "Sidewalk Damage"
-  ].filter(c => c !== mainCategory);
-  
-  const alternatives = {};
-  
-  // Add 2-3 alternative categories with confidence scores
-  const numAlternatives = Math.floor(Math.random() * 2) + 2;
-  for (let i = 0; i < numAlternatives; i++) {
-    if (categories.length <= i) break;
-    alternatives[categories[i]] = (Math.random() * 0.5).toFixed(2); // Score between 0 and 0.5
+  // Select 2-3 random alternative categories
+  const count = 2 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < count && i < filtered.length; i++) {
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    const cat = filtered[randomIndex];
+    alternatives[cat] = 0.2 + Math.random() * 0.4;
+    filtered.splice(randomIndex, 1);
   }
   
   return alternatives;
 }
 
-function mockExtractKeywords(title: string, description: string): string[] {
-  const combinedText = `${title} ${description}`.toLowerCase();
-  const keywords = [];
-  
-  const possibleKeywords = [
-    "pothole", "road", "light", "street", "garbage", "waste", 
-    "water", "leak", "graffiti", "drainage", "tree", "branch",
-    "sidewalk", "damage", "hazard", "danger", "repair", "fix"
+function extractKeywords(text: string): string[] {
+  // In a real app, this would use NLP. For now, we'll simulate.
+  const commonKeywords = [
+    'pothole', 'water', 'leak', 'garbage', 'trash', 
+    'light', 'tree', 'damage', 'broken', 'hazard',
+    'graffiti', 'vandalism', 'dangerous', 'flooding',
+    'repair', 'urgent', 'intersection', 'road', 'sidewalk'
   ];
   
-  possibleKeywords.forEach(keyword => {
-    if (combinedText.includes(keyword)) {
-      keywords.push(keyword);
-    }
-  });
+  const keywords: string[] = [];
+  const count = 3 + Math.floor(Math.random() * 4);
   
-  // Add a few random keywords if we don't have enough
-  while (keywords.length < 3) {
-    const randomKeyword = possibleKeywords[Math.floor(Math.random() * possibleKeywords.length)];
-    if (!keywords.includes(randomKeyword)) {
-      keywords.push(randomKeyword);
+  for (let i = 0; i < count; i++) {
+    const keyword = commonKeywords[Math.floor(Math.random() * commonKeywords.length)];
+    if (!keywords.includes(keyword)) {
+      keywords.push(keyword);
     }
   }
   
   return keywords;
 }
 
-function mockCalculatePriority(issue: any): number {
-  // Base priority
-  let priority = 3; // Medium priority by default
-  
-  // Adjust based on category
-  if (["Water Leakage", "Tree Hazard"].includes(issue.category)) {
-    priority += 1; // Higher priority for potentially dangerous issues
+function generateSimilarityScores(similarIssues: any[] | null): Record<string, number> {
+  if (!similarIssues || similarIssues.length === 0) {
+    return {};
   }
   
-  // Adjust based on votes
-  if (issue.votes > 10) {
-    priority += 1;
-  } else if (issue.votes > 5) {
-    priority += 0.5;
+  const scores: Record<string, number> = {};
+  
+  for (const issue of similarIssues) {
+    scores[issue.id] = 0.4 + Math.random() * 0.5;
   }
   
-  // Cap at 5
-  return Math.min(Math.round(priority), 5);
+  return scores;
 }
 
-function mockImpactAssessment(priorityScore: number): string {
+function calculatePriorityScore(issue: any): number {
+  // In a real app, this would use factors like severity, location, etc.
+  return Math.floor(Math.random() * 5) + 1;
+}
+
+function generateImpactAssessment(issue: any): string {
   const impacts = [
-    "Minimal impact on community",
-    "Low impact on small number of residents",
-    "Moderate impact on local area",
-    "Significant impact on neighborhood",
-    "Critical impact requiring immediate attention"
+    "Low impact on daily activities. Can be addressed during routine maintenance.",
+    "Moderate impact affecting pedestrian safety. Requires attention within the standard timeline.",
+    "Significant impact on traffic flow and safety. Should be prioritized for swift resolution.",
+    "High impact affecting critical infrastructure. Immediate attention recommended.",
+    "Severe impact posing immediate danger to residents. Emergency response required."
   ];
   
-  const index = Math.min(priorityScore - 1, impacts.length - 1);
-  return impacts[index];
+  return impacts[Math.floor(Math.random() * impacts.length)];
 }
 
-function mockUrgencyLevel(priorityScore: number): string {
-  const urgency = ["Low", "Low-Medium", "Medium", "High", "Critical"];
-  const index = Math.min(priorityScore - 1, urgency.length - 1);
-  return urgency[index];
+function determineUrgencyLevel(issue: any): string {
+  const levels = ["Low", "Medium", "High", "Critical"];
+  return levels[Math.floor(Math.random() * levels.length)];
 }
 
-function mockAssignDepartments(category: string): string[] {
-  const departmentMap = {
-    "Road Damage": ["Public Works", "Transportation"],
-    "Street Light Issue": ["Public Works", "Utilities"],
-    "Garbage & Waste": ["Sanitation", "Public Health"],
-    "Water Leakage": ["Utilities", "Public Works"],
-    "Graffiti": ["Parks & Recreation", "Public Works"],
-    "Drainage Blockage": ["Public Works", "Environmental Services"],
-    "Tree Hazard": ["Parks & Recreation", "Public Works"],
-    "Sidewalk Damage": ["Public Works", "Transportation"]
+function assignDepartments(category: string): string[] {
+  const departmentMap: Record<string, string[]> = {
+    'Road Damage': ['Public Works', 'Transportation'],
+    'Water Leakage': ['Water Utility', 'Infrastructure'],
+    'Garbage & Waste': ['Sanitation', 'Environmental Services'],
+    'Street Light Issue': ['Electrical', 'Public Safety'],
+    'Tree Hazard': ['Parks & Recreation', 'Public Works'],
+    'Graffiti': ['Maintenance', 'Community Services'],
+    'Park Maintenance': ['Parks & Recreation', 'Public Works'],
+    'Sidewalk Damage': ['Public Works', 'Transportation']
   };
   
-  return departmentMap[category] || ["Public Works"];
+  return departmentMap[category] || ['General Maintenance', 'Community Services'];
 }
 
-function mockResourceRequirements(category: string): Record<string, any> {
-  const baseRequirements = {
-    personnel: Math.floor(Math.random() * 3) + 1,
-    estimatedHours: Math.floor(Math.random() * 8) + 2,
-    equipmentNeeded: []
-  };
+function estimateResponseTime(issue: any): number {
+  // Return hours for response time
+  return 24 + Math.floor(Math.random() * 72);
+}
+
+function calculateResourceRequirements(issue: any) {
+  const personnel = 1 + Math.floor(Math.random() * 5);
+  const hours = personnel * (4 + Math.floor(Math.random() * 8));
   
-  // Add category-specific equipment
-  switch (category) {
-    case "Road Damage":
-      baseRequirements.equipmentNeeded = ["Asphalt", "Compactor", "Truck"];
-      break;
-    case "Street Light Issue":
-      baseRequirements.equipmentNeeded = ["Ladder", "Replacement Bulbs", "Electrical Tools"];
-      break;
-    case "Water Leakage":
-      baseRequirements.equipmentNeeded = ["Pipe Wrenches", "Replacement Pipes", "Sealant"];
-      break;
-    case "Tree Hazard":
-      baseRequirements.equipmentNeeded = ["Chainsaw", "Safety Equipment", "Chipper"];
-      break;
-    default:
-      baseRequirements.equipmentNeeded = ["Basic Tools", "Safety Equipment"];
+  const equipmentOptions = [
+    'Truck', 'Excavator', 'Concrete Mixer', 'Water Pump', 
+    'Generator', 'Light Tower', 'Chainsaw', 'Safety Barriers',
+    'Ladder', 'Pressure Washer', 'Handheld Tools'
+  ];
+  
+  const equipmentCount = 1 + Math.floor(Math.random() * 3);
+  const equipment = [];
+  
+  for (let i = 0; i < equipmentCount; i++) {
+    const item = equipmentOptions[Math.floor(Math.random() * equipmentOptions.length)];
+    if (!equipment.includes(item)) {
+      equipment.push(item);
+    }
   }
   
-  return baseRequirements;
+  return {
+    personnel: personnel,
+    estimatedHours: hours,
+    equipmentNeeded: equipment
+  };
 }

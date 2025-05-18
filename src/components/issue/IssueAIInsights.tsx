@@ -41,7 +41,16 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
         
       if (error) throw error;
       
-      setSimilarIssues(data as IssueReport[]);
+      // Convert Supabase data to match IssueReport interface
+      const convertedData = data.map(item => ({
+        ...item,
+        images: item.image_url ? [item.image_url] : [],
+        reportedBy: item.user_id || 'Anonymous',
+        reportedAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.created_at || new Date().toISOString(),
+      })) as IssueReport[];
+      
+      setSimilarIssues(convertedData);
     } catch (error) {
       console.error('Error fetching similar issues:', error);
       toast({
@@ -250,7 +259,12 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
                         {Math.round(Number(score) * 100)}% similar
                       </Badge>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">{similarIssue.location}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {typeof similarIssue.location === 'object' ? 
+                        similarIssue.location.address : 
+                        similarIssue.location
+                      }
+                    </div>
                   </div>
                 );
               })}
