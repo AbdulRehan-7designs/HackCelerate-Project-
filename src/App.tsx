@@ -14,6 +14,8 @@ import Profile from "./pages/Profile";
 import MyReports from "./pages/MyReports";
 import Reports from "./pages/Reports";
 import OfficialLogin from "./pages/OfficialLogin";
+import CommunityStats from "./pages/CommunityStats";
+import FloatingChatbot from "./components/FloatingChatbot";
 
 const queryClient = new QueryClient();
 
@@ -33,9 +35,11 @@ const App = () => (
             <Route path="/my-reports" element={<MyReports />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/officials/login" element={<OfficialLogin />} />
+            <Route path="/community-stats" element={<CommunityStats />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingChatbot />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
