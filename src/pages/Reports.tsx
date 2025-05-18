@@ -203,7 +203,7 @@ const Reports = () => {
                 <Card key={report.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                   <div className="aspect-video relative">
                     <img 
-                      src={report.imageUrl || "https://source.unsplash.com/random/300x200/?pothole"} 
+                      src={report.images && report.images.length > 0 ? report.images[0] : "/placeholder.svg"} 
                       alt={report.title} 
                       className="object-cover w-full h-full"
                     />
