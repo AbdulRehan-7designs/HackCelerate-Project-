@@ -75,7 +75,7 @@ export function useAIAnalysis() {
       console.error('Error in analyze issue:', error);
       toast({
         title: "Analysis error",
-        description: error.message || "An unexpected error occurred during analysis.",
+        description: error instanceof Error ? error.message : "An unexpected error occurred during analysis.",
         variant: "destructive"
       });
       return null;

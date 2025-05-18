@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AIAnalysis, useAIAnalysis } from '@/hooks/useAIAnalysis';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +47,7 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
         reportedBy: item.user_id || 'Anonymous',
         reportedAt: item.created_at || new Date().toISOString(),
         updatedAt: item.created_at || new Date().toISOString(),
-      })) as IssueReport[];
+      })) as unknown as IssueReport[];
       
       setSimilarIssues(convertedData);
     } catch (error) {
@@ -64,7 +63,7 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
   };
 
   // Load existing analysis if available
-  useState(() => {
+  useEffect(() => {
     const loadAnalysis = async () => {
       const result = await fetchAnalysis(issue.id);
       if (result?.similar_issue_ids?.length) {
@@ -73,7 +72,7 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
     };
     
     loadAnalysis();
-  });
+  }, [issue.id]); // Added dependency
 
   if (!analysis && !isAnalyzing) {
     return (
@@ -152,7 +151,6 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
               <Progress 
                 value={(analysis?.category_confidence || 0) * 100} 
                 className="h-1.5" 
-                indicatorClassName="bg-purple-500"
               />
             </div>
             
@@ -262,7 +260,7 @@ export const IssueAIInsights = ({ issue }: IssueAIInsightsProps) => {
                     <div className="text-xs text-gray-500 mt-1">
                       {typeof similarIssue.location === 'object' ? 
                         similarIssue.location.address : 
-                        similarIssue.location
+                        String(similarIssue.location)
                       }
                     </div>
                   </div>
