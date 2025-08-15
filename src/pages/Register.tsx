@@ -14,9 +14,11 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, signUp } = useAuth();
 
   // If already logged in, redirect to home
   if (isAuthenticated) {
@@ -26,7 +28,7 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !username || !fullName) {
       toast({
         title: "Error",
         description: "Please fill in all fields.",
@@ -43,27 +45,40 @@ const Register = () => {
       });
       return;
     }
+
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsLoading(true);
     
-    // In a real app, this would call an API registration endpoint
-    setTimeout(() => {
-      toast({
-        title: "Registration Successful",
-        description: "Your account has been created. You can now log in.",
+    try {
+      const { error } = await signUp(email, password, {
+        username,
+        full_name: fullName
       });
-      
-      // Auto-login after successful registration
-      login(email, password).catch(() => {
+
+      if (!error) {
+        // Registration successful - user will get email verification
         toast({
-          title: "Auto-login Failed",
-          description: "Please try logging in manually.",
-          variant: "destructive",
+          title: "Registration Successful",
+          description: "Please check your email for verification link.",
         });
+      }
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
       });
-      
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -85,6 +100,30 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input 
+                  id="fullName" 
+                  placeholder="John Doe" 
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="border-civic-blue/30 focus:border-civic-blue"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input 
+                  id="username" 
+                  placeholder="johndoe" 
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="border-civic-blue/30 focus:border-civic-blue"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input 

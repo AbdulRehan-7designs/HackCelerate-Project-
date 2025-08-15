@@ -26,7 +26,7 @@ const Navbar = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notificationCount, setNotificationCount] = useState(2);
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, profile, logout, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -237,7 +237,7 @@ const Navbar = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {user?.isAdmin && (
+                {profile?.is_admin && (
                   <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-100">
                     <Link to="/admin">Admin Dashboard</Link>
                   </DropdownMenuItem>

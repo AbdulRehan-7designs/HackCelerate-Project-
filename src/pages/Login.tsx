@@ -37,11 +37,16 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await login(email, password);
+      const { error } = await login(email, password);
+      
+      if (error) {
+        // Error already handled in auth context
+        return;
+      }
     } catch (error) {
       toast({
         title: "Login Failed",
-        description: "An error occurred during login.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
