@@ -15,6 +15,7 @@ import OfficialLogin from "./pages/OfficialLogin";
 import CommunityStats from "./pages/CommunityStats";
 import AIInsights from "./pages/AIInsights";
 import FloatingChatbot from "./components/FloatingChatbot";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,9 +36,21 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/my-reports" element={<MyReports />} />
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin>
+                <Admin />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-reports" element={
+              <ProtectedRoute>
+                <MyReports />
+              </ProtectedRoute>
+            } />
             <Route path="/reports" element={<Reports />} />
             <Route path="/officials/login" element={<OfficialLogin />} />
             <Route path="/community-stats" element={<CommunityStats />} />
