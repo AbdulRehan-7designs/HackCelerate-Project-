@@ -8,11 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { useAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
+import VoteButton from "@/components/VoteButton";
 
 // Mock data for reports
 const mockReports = [
   {
-    id: 1,
+    id: "report-1",
     title: "Pothole on Main Street",
     description: "Large pothole causing traffic hazards",
     status: "in-progress",
@@ -23,7 +24,7 @@ const mockReports = [
     imageUrl: "https://www.bing.com/images/search?view=detailV2&ccid=a9oq90Cu&id=F3725D9E1AFB346C75E408157EC92FEF4BC21B19&thid=OIP.a9oq90CupsQCYTX6ihmY0AHaEK&mediaurl=https%3a%2f%2fwww.hindustantimes.com%2fht-img%2fimg%2f2023%2f07%2f18%2f1600x900%2fMumbai--India---July-18--2023---Huge-potholes-Seen_1689706903750.jpg&exph=900&expw=1600&q=pothhole+on+street+india&simid=608011407093275162&FORM=IRPRST&ck=7F72057DD9E3358822CBBF06AF01AF0C&selectedIndex=6&itb=0"
   },
   {
-    id: 2,
+    id: "report-2",
     title: "Broken Streetlight",
     description: "Streetlight not working near the park entrance",
     status: "reported",
@@ -34,7 +35,7 @@ const mockReports = [
     imageUrl: "https://www.bing.com/images/search?view=detailV2&ccid=8M0rM2sd&id=8E6524878C0CB6F51E911C509FCEA31B4E44F352&thid=OIP.8M0rM2sdczYAY_tX89PbtgHaEK&mediaurl=https%3a%2f%2fwww.hindustantimes.com%2fht-img%2fimg%2f2023%2f07%2f23%2f1600x900%2fA-non-functioning-street-light-at-southern-bypass-_1690134239324.jpg&exph=900&expw=1600&q=Broken+street+light++india&simid=607991585820640763&FORM=IRPRST&ck=0652503B4BACE304C5E7F0067905AFD7&selectedIndex=0&itb=0"
   },
   {
-    id: 3,
+    id: "report-3",
     title: "Fallen Tree Branch",
     description: "Large branch blocking sidewalk after storm",
     status: "resolved",
@@ -78,6 +79,14 @@ const MyReports = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+
+  const handleVoteChange = (reportId: string, newVotes: number) => {
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === reportId ? { ...report, votes: newVotes } : report
+      )
+    );
+  };
 
   useEffect(() => {
     // Simulate API call to fetch user's reports
@@ -213,15 +222,11 @@ const MyReports = () => {
                       View Details
                     </Button>
                     
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                          <path d="M7 10v12"></path>
-                          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path>
-                        </svg>
-                        {report.votes}
-                      </Button>
-                    </div>
+                    <VoteButton 
+                      issueId={report.id} 
+                      initialVotes={report.votes}
+                      onVoteChange={(newVotes) => handleVoteChange(report.id, newVotes)}
+                    />
                   </CardFooter>
                 </Card>
               ))}

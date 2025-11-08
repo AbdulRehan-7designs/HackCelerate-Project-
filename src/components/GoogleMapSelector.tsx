@@ -1,14 +1,10 @@
 
 import { useState, useEffect, useRef, memo } from 'react';
 import { Card } from '@/components/ui/card';
-import { Loader } from '@googlemaps/js-api-loader';
 import { MapPin } from 'lucide-react';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-
-// This is a public key that would normally be restricted with HTTP referrer restrictions
-// In a production app, this should be stored securely
-const GOOGLE_MAPS_API_KEY = 'AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg';
+import { loadGoogleMaps } from '@/utils/googleMapsLoader';
 
 interface Location {
   lat: number;
@@ -37,13 +33,7 @@ const GoogleMapSelector = ({
   useEffect(() => {
     const initMap = async () => {
       try {
-        const loader = new Loader({
-          apiKey: GOOGLE_MAPS_API_KEY,
-          version: "weekly",
-          libraries: ["places"]
-        });
-
-        const google = await loader.load();
+        const google = await loadGoogleMaps(["places"]);
         
         if (!mapRef.current) return;
         

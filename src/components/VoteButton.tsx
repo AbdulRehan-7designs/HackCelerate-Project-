@@ -20,10 +20,22 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   
+  // Sync votes with initialVotes when it changes
+  useEffect(() => {
+    setVotes(initialVotes);
+  }, [initialVotes]);
+
   // Check if user has voted on this issue before
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user?.email) {
       const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
+      if (userVotes[issueId]) {
+        setHasVoted(true);
+      }
+    } else if (isAuthenticated) {
+      // Fallback: use user ID if email is not available
+      const userId = user?.id || 'anonymous';
+      const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${userId}`) || '{}');
       if (userVotes[issueId]) {
         setHasVoted(true);
       }
@@ -43,17 +55,17 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
     }
 
     // In a real app with Supabase, this would call an API to record the vote
+    const userIdentifier = user?.email || user?.id || 'anonymous';
+    
     if (hasVoted) {
       const newVotes = votes - 1;
       setVotes(newVotes);
       setHasVoted(false);
       
       // Remove vote from localStorage
-      if (user) {
-        const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
-        delete userVotes[issueId];
-        localStorage.setItem(`civicpulse-votes-${user.email}`, JSON.stringify(userVotes));
-      }
+      const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${userIdentifier}`) || '{}');
+      delete userVotes[issueId];
+      localStorage.setItem(`civicpulse-votes-${userIdentifier}`, JSON.stringify(userVotes));
       
       if (onVoteChange) onVoteChange(newVotes);
       toast({
@@ -65,11 +77,9 @@ const VoteButton = ({ issueId, initialVotes, onVoteChange }: VoteButtonProps) =>
       setHasVoted(true);
       
       // Store vote in localStorage
-      if (user) {
-        const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${user.email}`) || '{}');
-        userVotes[issueId] = true;
-        localStorage.setItem(`civicpulse-votes-${user.email}`, JSON.stringify(userVotes));
-      }
+      const userVotes = JSON.parse(localStorage.getItem(`civicpulse-votes-${userIdentifier}`) || '{}');
+      userVotes[issueId] = true;
+      localStorage.setItem(`civicpulse-votes-${userIdentifier}`, JSON.stringify(userVotes));
       
       if (onVoteChange) onVoteChange(newVotes);
       toast({

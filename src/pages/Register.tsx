@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, UserPlus } from "lucide-react";
+import { MapPin, UserPlus, User, Shield, Building2 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, UserRole } from '@/context/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +18,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState<UserRole>('citizen');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { isAuthenticated, signUp } = useAuth();
@@ -60,7 +63,8 @@ const Register = () => {
     try {
       const { error } = await signUp(email, password, {
         username,
-        full_name: fullName
+        full_name: fullName,
+        role: role
       });
 
       if (!error) {
@@ -157,6 +161,42 @@ const Register = () => {
                   required
                   className="border-civic-blue/30 focus:border-civic-blue"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Account Type <span className="text-red-500">*</span></Label>
+                <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
+                  <SelectTrigger className="border-civic-blue/30 focus:border-civic-blue">
+                    <SelectValue placeholder="Select account type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="citizen">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>Citizen</span>
+                        <Badge variant="outline" className="ml-auto text-xs">Default</Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="official">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        <span>Official</span>
+                        <Badge variant="outline" className="ml-auto text-xs bg-blue-50">Government</Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="admin" disabled>
+                      <div className="flex items-center gap-2 opacity-50">
+                        <Shield className="h-4 w-4" />
+                        <span>Admin</span>
+                        <Badge variant="outline" className="ml-auto text-xs">By Invitation Only</Badge>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {role === 'citizen' && 'Report issues and participate in your community'}
+                  {role === 'official' && 'Manage and respond to community issues'}
+                  {role === 'admin' && 'Full system access (requires approval)'}
+                </p>
               </div>
               <Button 
                 type="submit" 

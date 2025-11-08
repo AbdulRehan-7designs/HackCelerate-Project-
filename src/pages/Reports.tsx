@@ -3,18 +3,20 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, CheckCircle, Clock, AlertTriangle, Filter, ArrowUpDown } from "lucide-react";
+import { MapPin, Calendar, CheckCircle, Clock, AlertTriangle, Filter, ArrowUpDown, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { mockIssues, IssueReport, formatTimeAgo } from "@/utils/mockData";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import VoteButton from "@/components/VoteButton";
 import { IssueCardDetails } from "@/components/issue/IssueCardDetails";
+import LiveIssuesMap from "@/components/LiveIssuesMap";
 
 // Status helper functions
 const getStatusColor = (status) => {
@@ -61,6 +63,7 @@ const Reports = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'priority'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showMap, setShowMap] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -180,9 +183,31 @@ const Reports = () => {
                     <ArrowUpDown className="h-3 w-3 ml-1" />
                   )}
                 </Button>
+                <Button
+                  variant={showMap ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowMap(!showMap)}
+                  className="flex items-center"
+                >
+                  <Map className="h-4 w-4 mr-1" />
+                  {showMap ? "Hide Map" : "Show Map"}
+                </Button>
               </div>
             </div>
           </div>
+          
+          {showMap ? (
+            <div className="mb-6">
+              <LiveIssuesMap 
+                issues={reports} 
+                onIssueSelect={(issue) => {
+                  setSelectedIssue(issue);
+                  setIsDialogOpen(true);
+                }}
+                height="600px"
+              />
+            </div>
+          ) : null}
           
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
@@ -267,6 +292,9 @@ const Reports = () => {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Issue Details</DialogTitle>
+            <DialogDescription>
+              View complete information about the reported issue
+            </DialogDescription>
           </DialogHeader>
           
           {selectedIssue && (

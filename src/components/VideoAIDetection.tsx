@@ -65,13 +65,16 @@ const VideoAIDetection = ({ onDetectionResults }: VideoAIDetectionProps) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error accessing camera:", err);
-      toast({
-        title: "Camera Error",
-        description: "Unable to access camera. Please check permissions.",
-        variant: "destructive",
-      });
+      // Only show error if it's not a permission denial (user might have intentionally denied)
+      if (err.name !== 'NotAllowedError') {
+        toast({
+          title: "Camera Error",
+          description: "Unable to access camera. Please check permissions.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -185,11 +188,10 @@ const VideoAIDetection = ({ onDetectionResults }: VideoAIDetectionProps) => {
     }, 3000);
   };
 
+  // Cleanup on component unmount
   useEffect(() => {
-    startCamera();
-    
     return () => {
-      // Cleanup on component unmount
+      // Cleanup camera stream on component unmount
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -198,7 +200,7 @@ const VideoAIDetection = ({ onDetectionResults }: VideoAIDetectionProps) => {
         URL.revokeObjectURL(videoUrl);
       }
     };
-  }, []);
+  }, [videoUrl]);
 
   return (
     <Card className="overflow-hidden">
@@ -236,25 +238,37 @@ const VideoAIDetection = ({ onDetectionResults }: VideoAIDetectionProps) => {
             )}
           </div>
           
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-2">
             {!videoUrl ? (
-              <Button 
-                disabled={isRecording || !modelLoaded} 
-                onClick={startRecording}
-                className="flex items-center"
-              >
-                {isRecording ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Recording...
-                  </>
-                ) : (
-                  <>
+              <>
+                {!streamRef.current && (
+                  <Button 
+                    onClick={startCamera}
+                    variant="outline"
+                    className="flex items-center"
+                  >
                     <Camera className="mr-2 h-4 w-4" />
-                    Record Video
-                  </>
+                    Start Camera
+                  </Button>
                 )}
-              </Button>
+                <Button 
+                  disabled={isRecording || !modelLoaded || !streamRef.current} 
+                  onClick={startRecording}
+                  className="flex items-center"
+                >
+                  {isRecording ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Recording...
+                    </>
+                  ) : (
+                    <>
+                      <Video className="mr-2 h-4 w-4" />
+                      Record Video
+                    </>
+                  )}
+                </Button>
+              </>
             ) : (
               <Button 
                 disabled={isProcessing}

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Check } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
 
 interface AIClassifierProps {
   imageUrl?: string | null;
@@ -20,45 +21,60 @@ const AIClassifier = ({ imageUrl, onClassify }: AIClassifierProps) => {
     setAnalysisComplete(false);
   }, [imageUrl]);
 
-  const analyzeImage = () => {
+  const analyzeImage = async () => {
     if (!imageUrl) return;
     
     setIsAnalyzing(true);
     
-    // In a real app, this would call an actual AI service API
-    // Here we're simulating an analysis with improved mock data
-    setTimeout(() => {
-      // More comprehensive and varied tags for different issues
-      const possibleTags = {
-        infrastructure: ['pothole', 'road damage', 'sidewalk crack', 'broken pavement', 'sinkhole', 'road hazard'],
-        lighting: ['street light out', 'dim lighting', 'broken lamp', 'dark area', 'light pole damage'],
-        waste: ['garbage overflow', 'illegal dumping', 'littering', 'waste pile', 'recycling issue'],
-        water: ['water leak', 'flooding', 'drainage issue', 'standing water', 'sewer problem'],
-        nature: ['fallen tree', 'overgrown vegetation', 'dead tree', 'landscaping issue', 'invasive species'],
-        safety: ['missing sign', 'damaged guardrail', 'road marking faded', 'missing manhole cover'],
-        severity: ['low severity', 'medium severity', 'high severity', 'urgent', 'needs attention']
+    try {
+      // Fetch image and convert to base64 for Gemini Vision API
+      const imageResponse = await fetch(imageUrl);
+      const blob = await imageResponse.blob();
+      const reader = new FileReader();
+      
+      reader.onloadend = async () => {
+        const base64Image = (reader.result as string).split(',')[1];
+        
+        try {
+          // Call Gemini Vision API via Supabase function
+          const { data, error } = await supabase.functions.invoke('ai-image-analysis', {
+            body: { 
+              image: base64Image,
+              mimeType: blob.type || 'image/jpeg'
+            }
+          });
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data?.tags && Array.isArray(data.tags)) {
+            setTags(data.tags);
+            onClassify(data.tags);
+          } else {
+            // Fallback to default tags if API doesn't return expected format
+            const defaultTags = ['civic issue', 'needs attention'];
+            setTags(defaultTags);
+            onClassify(defaultTags);
+          }
+        } catch (error) {
+          console.error('Error analyzing image:', error);
+          // Fallback to default tags
+          const defaultTags = ['civic issue', 'needs attention'];
+          setTags(defaultTags);
+          onClassify(defaultTags);
+        } finally {
+          setIsAnalyzing(false);
+          setAnalysisComplete(true);
+        }
       };
       
-      // Select a few tags from different categories
-      const selectedTags = [
-        possibleTags.infrastructure[Math.floor(Math.random() * possibleTags.infrastructure.length)],
-        possibleTags.severity[Math.floor(Math.random() * possibleTags.severity.length)]
-      ];
-      
-      // Add 1-2 more random tags
-      const categories = Object.keys(possibleTags);
-      const randomCategory = categories[Math.floor(Math.random() * (categories.length - 1))]; // exclude severity which we already added
-      
-      if (randomCategory !== 'infrastructure') { // avoid duplicate from the same category
-        const categoryTags = possibleTags[randomCategory as keyof typeof possibleTags];
-        selectedTags.push(categoryTags[Math.floor(Math.random() * categoryTags.length)]);
-      }
-      
-      setTags(selectedTags);
-      onClassify(selectedTags);
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error processing image:', error);
       setIsAnalyzing(false);
       setAnalysisComplete(true);
-    }, 2000);
+    }
   };
 
   useEffect(() => {

@@ -12,8 +12,10 @@ import Profile from "./pages/Profile";
 import MyReports from "./pages/MyReports";
 import Reports from "./pages/Reports";
 import OfficialLogin from "./pages/OfficialLogin";
+import Official from "./pages/Official";
 import CommunityStats from "./pages/CommunityStats";
 import AIInsights from "./pages/AIInsights";
+import SetupAdmin from "./pages/SetupAdmin";
 import FloatingChatbot from "./components/FloatingChatbot";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -36,6 +38,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/setup-admin" element={<SetupAdmin />} />
             <Route path="/admin" element={
               <ProtectedRoute requireAdmin>
                 <Admin />
@@ -53,6 +56,11 @@ const App = () => (
             } />
             <Route path="/reports" element={<Reports />} />
             <Route path="/officials/login" element={<OfficialLogin />} />
+            <Route path="/official" element={
+              <ProtectedRoute requireOfficial>
+                <Official />
+              </ProtectedRoute>
+            } />
             <Route path="/community-stats" element={<CommunityStats />} />
             <Route path="/insights" element={<AIInsights />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

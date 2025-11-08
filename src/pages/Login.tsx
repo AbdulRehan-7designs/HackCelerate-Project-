@@ -114,13 +114,32 @@ const Login = () => {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-civic-blue hover:underline hover:text-civic-blue/80 transition-colors">
-                Sign up
+          <CardFooter className="flex flex-col gap-3">
+            <div className="flex justify-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{" "}
+                <Link to="/register" className="text-civic-blue hover:underline hover:text-civic-blue/80 transition-colors">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex-1 border-t"></div>
+              <span>OR</span>
+              <div className="flex-1 border-t"></div>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <Link to="/officials/login">
+                <Button variant="outline" className="w-full" size="sm">
+                  Login as Official
+                </Button>
               </Link>
-            </p>
+              <Link to="/setup-admin">
+                <Button variant="ghost" className="w-full text-xs" size="sm">
+                  Setup Admin Account
+                </Button>
+              </Link>
+            </div>
           </CardFooter>
         </Card>
       </main>

@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -22,7 +22,7 @@ serve(async (req) => {
 
     console.log('Analyzing issue:', { issueId, title, category });
 
-    // AI Analysis using GPT-4
+    // AI Analysis using Gemini
     const prompt = `Analyze this civic issue report and provide detailed insights:
 
 Title: ${title}
@@ -43,34 +43,41 @@ Please provide:
 10. Duplicate score assessment (0-1)
 
 Format your response as a JSON object with these exact keys:
-predicted_category, priority_score, urgency_level, impact_assessment, estimated_response_time, resource_requirements, extracted_keywords, assigned_departments, category_confidence, duplicate_score`;
+predicted_category, priority_score, urgency_level, impact_assessment, estimated_response_time, resource_requirements, extracted_keywords, assigned_departments, category_confidence, duplicate_score
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+You are an AI assistant specialized in analyzing civic issues and infrastructure problems. Provide structured, actionable insights.`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          { role: 'system', content: 'You are an AI assistant specialized in analyzing civic issues and infrastructure problems. Provide structured, actionable insights.' },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 1000,
-        temperature: 0.3,
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1000,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
     let analysis;
     
     try {
-      analysis = JSON.parse(data.choices[0].message.content);
+      const responseText = data.candidates[0].content.parts[0].text;
+      // Extract JSON from response (handle markdown code blocks if present)
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : responseText;
+      analysis = JSON.parse(jsonText);
     } catch (parseError) {
       console.error('Failed to parse AI response, using fallback');
       analysis = {

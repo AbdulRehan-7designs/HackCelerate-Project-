@@ -121,9 +121,15 @@ const Navbar = () => {
             <Link to="/my-reports" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors">
               My Reports
             </Link>
-            <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
-              <ShieldCheck className="h-4 w-4 mr-1" /> Officials
-            </Link>
+            {isAuthenticated && (profile?.role === 'official' || profile?.role === 'admin') ? (
+              <Link to="/official" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
+                <ShieldCheck className="h-4 w-4 mr-1" /> Official Portal
+              </Link>
+            ) : (
+              <Link to="/officials/login" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center">
+                <ShieldCheck className="h-4 w-4 mr-1" /> Officials
+              </Link>
+            )}
             <Link to="/insights" className="px-3 py-2 rounded-md hover:bg-white/10 transition-colors flex items-center relative">
               AI Insights
               <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded px-1.5 text-[10px]">
@@ -237,9 +243,14 @@ const Navbar = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {profile?.is_admin && (
+                {profile?.role === 'admin' && (
                   <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-100">
                     <Link to="/admin">Admin Dashboard</Link>
+                  </DropdownMenuItem>
+                )}
+                {profile?.role === 'official' && (
+                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-100">
+                    <Link to="/official">Official Portal</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-100">

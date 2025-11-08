@@ -10,6 +10,7 @@ import {
   ArrowRight, MessageSquare, LineChart, FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminAIAssistantProps {
   className?: string;
@@ -36,28 +37,33 @@ const AdminAIAssistant = ({ className }: AdminAIAssistantProps) => {
     setResponse(null);
 
     try {
-      // For demonstration, simulate an API call with various responses based on mode
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      // Build context based on mode
+      let contextPrompt = '';
       if (mode === 'assistant') {
-        if (query.toLowerCase().includes('pothole')) {
-          setResponse("Based on current data, pothole reports have increased by 24% in the downtown area. Recommend allocating additional repair crews to sectors 3 and 4. Current average response time is 3.2 days, which exceeds our target of 2 days.");
-        } else if (query.toLowerCase().includes('streetlight')) {
-          setResponse("Streetlight outage reports are concentrated in the northern districts, with 68% of cases reported in evening hours. There's a strong correlation with recent weather events. Dispatching maintenance teams has been prioritized for areas with highest pedestrian activity.");
-        } else if (query.toLowerCase().includes('garbage') || query.toLowerCase().includes('trash')) {
-          setResponse("Waste management efficiency has improved by 12% since implementing route optimization. There are still service gaps in the western suburb areas that should be addressed. Recommend reviewing collection schedules for Tuesday and Thursday routes.");
-        } else {
-          setResponse("Analysis complete. I've identified several patterns in recent issue reports that may require attention. There's a notable increase in infrastructure-related reports in sectors 2 and 5, while environmental concerns are trending downward by approximately 8% city-wide.");
-        }
+        contextPrompt = 'You are an AI assistant for civic administration. Analyze the query and provide actionable insights about civic issues, resource allocation, and community problems.';
       } else if (mode === 'reports') {
-        setResponse("Generated detailed report on current civic issues. Key findings: 1) Water infrastructure issues show seasonal patterns with 43% increase during summer months. 2) Response times have improved in 7 out of 9 districts. 3) There are 27 high-priority issues requiring immediate attention, primarily in downtown and riverside areas.");
+        contextPrompt = 'You are an AI assistant specialized in generating comprehensive reports about civic issues. Create detailed reports with key findings, statistics, and recommendations.';
       } else if (mode === 'trends') {
-        setResponse("Predictive analysis suggests increased flooding risk in Southeast district in next 30 days based on infrastructure reports, weather patterns, and historical data. Recommend proactive drainage system maintenance. AI confidence score: 83%");
+        contextPrompt = 'You are an AI assistant specialized in predictive analysis and trend identification for civic issues. Analyze patterns and predict future issues based on historical data.';
       }
+
+      // Call Gemini-powered AI chat function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { 
+          message: `${contextPrompt}\n\nUser query: ${query}`,
+          context: `Mode: ${mode}. User is an admin asking about civic management and community issues.`
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      setResponse(data?.response || 'I apologize, but I couldn\'t generate a response. Please try again.');
 
       toast({
         title: "Analysis complete",
-        description: "AI has processed your query successfully",
+        description: "Gemini AI has processed your query successfully",
       });
     } catch (error) {
       console.error("Error during analysis:", error);

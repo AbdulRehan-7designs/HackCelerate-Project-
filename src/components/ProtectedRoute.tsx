@@ -1,15 +1,22 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, UserRole } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
+  requireOfficial?: boolean;
+  allowedRoles?: UserRole[];
 }
 
-const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { isAuthenticated, profile, loading } = useAuth();
+const ProtectedRoute = ({ 
+  children, 
+  requireAdmin = false, 
+  requireOfficial = false,
+  allowedRoles 
+}: ProtectedRouteProps) => {
+  const { isAuthenticated, profile, loading, userRole } = useAuth();
 
   if (loading) {
     return (
@@ -25,7 +32,16 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && !profile?.is_admin) {
+  // Check role-based access
+  if (requireAdmin && userRole !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requireOfficial && userRole !== 'official' && userRole !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     return <Navigate to="/" replace />;
   }
 

@@ -3,15 +3,24 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://lcluwsgovzrhkykccrwf.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjbHV3c2dvdnpyaGt5a2NjcndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2MTQyNTMsImV4cCI6MjA2MjE5MDI1M30.gF-HU9MkllgRgrCUwZMPZkAmZ_impsWNLcR8Q0vQhWk";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://lheuewkksrzdpbdmvbea.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoZXVld2trc3J6ZHBiZG12YmVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NDEwMTYsImV4cCI6MjA3ODAxNzAxNn0.f6bwNi-g7u_tUmTYtGWK5TqBKPUt3f6123AfRuhD_p8";
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Missing Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
+  );
+}
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+  },
+  global: {
+    headers: {
+      'x-client-info': 'civicpulse-web',
+    },
+  },
 });

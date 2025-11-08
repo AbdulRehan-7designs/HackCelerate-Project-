@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
+import HotspotMap from '@/components/HotspotMap';
+import { mockIssues } from '@/utils/mockData';
 
 export const AIInsightsDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -343,26 +345,19 @@ export const AIInsightsDashboard = () => {
         </CardContent>
       </Card>
       
-      {/* Hotspot Map - Placeholder since we'd need a real map integration */}
+      {/* Hotspot Map - Google Maps Integration */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Map className="h-5 w-5 mr-2 text-blue-500" />
             Issue Hotspots
           </CardTitle>
+          <CardDescription>
+            Visualize issue density and hotspots across the community using Google Maps heatmap
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="h-[400px] bg-slate-100 flex items-center justify-center">
-            <div className="text-center">
-              <Map className="h-12 w-12 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500">
-                Hotspot map visualization would appear here in a production application.
-              </p>
-              <p className="text-slate-400 text-sm mt-1">
-                Requires integration with a mapping service.
-              </p>
-            </div>
-          </div>
+          <HotspotMap issues={mockIssues} height="500px" />
         </CardContent>
       </Card>
     </div>

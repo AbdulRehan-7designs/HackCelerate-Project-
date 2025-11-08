@@ -63,12 +63,12 @@ export const mockIssues: IssueReport[] = [
     reportedBy: "Rahul S.",
     votes: 12,
     location: {
-      address: "MG Road, Near Metro Station, Bengaluru",
+      address: "nampally, Hyderabad",
       lat: 12.9716,
       lng: 77.5946
     },
     images: [
-      "https://www.bing.com/images/search?view=detailV2&ccid=c2cpRMKz&id=6D953139D66F8721817CBF015FA9C70C3207FA06&thid=OIP.c2cpRMKz3ZsTpS6wuz67vgHaDt&mediaurl=https%3a%2f%2flocalpress.co.in%2fwp-content%2fuploads%2f2018%2f12%2fin-india-potholes-killed-more-people-than-terrorists-in-last-5-years-optimized.jpg&exph=366&expw=732&q=pothholes+near+metro+india&simid=607998079795731686&FORM=IRPRST&ck=8AB084548D791ED614943467BC850805&selectedIndex=5&itb=0"
+      "https://tse4.mm.bing.net/th/id/OIP.Vb8TqsJINs2VQDssMWvhKwHaEV?rs=1&pid=ImgDetMain&o=7&rm=3"
     ],
     aiTags: ["pothole", "road", "traffic hazard", "vehicle damage"]
   },
@@ -81,10 +81,9 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Priya M.",
     votes: 8,
-    location: "Lajpat Nagar Market, New Delhi",
+    location: "mehndipatnam,hyderabad,Telangana",
     images: [
-      "/placeholder.svg?text=Garbage+Pile+Delhi", 
-      "/placeholder.svg?text=Market+Area+Waste"
+      "https://tse3.mm.bing.net/th/id/OIP.Ef6pvPNeErt60wrmmDVVPQHaFj?rs=1&pid=ImgDetMain&o=7&rm=3"
     ],
     aiTags: ["garbage", "waste", "public health", "sanitation"]
   },
@@ -116,24 +115,21 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Sunita P.",
     votes: 5,
-    location: "Shivaji Park, Dadar, Mumbai",
+    location: "Shivaji Park, dodh bowli, hyderabad",
     images: ["/placeholder.svg?text=Dark+Street+Mumbai"],
     aiTags: ["street light", "safety hazard", "night", "electrical"]
   },
   {
     id: "issue-5",
-    title: "Collapsed drainage system in Sector 18",
-    description: "The drainage system in Sector 18 near the market has collapsed causing sewage overflow onto the main road. The stench is unbearable and it's creating unhygienic conditions for the nearby food stalls and residents.",
+    title: "Collapsed drainage system in gulshan colony",
+    description: "The drainage system in gulshan colony near the market has collapsed causing sewage overflow onto the main road. The stench is unbearable and it's creating unhygienic conditions for the nearby food stalls and residents.",
     category: "Drainage Issue",
     status: "reported",
     reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Vikram S.",
     votes: 10,
-    location: "Sector 18, Noida, Uttar Pradesh",
-    images: [
-      "/placeholder.svg?text=Drainage+Issue+Noida",
-      "/placeholder.svg?text=Sewage+Overflow"
-    ],
+    location: "gulshan colony,tolichowki , hyderabad, Telangana",
+    images:["https://tse4.mm.bing.net/th/id/OIP.Vb8TqsJINs2VQDssMWvhKwHaEV?rs=1&pid=ImgDetMain&o=7&rm=3"],
     aiTags: ["drainage", "sewage", "public health", "infrastructure"]
   },
   {
@@ -145,7 +141,7 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Deepak R.",
     votes: 7,
-    location: "Gandhi Bazaar, Basavanagudi, Bengaluru",
+    location: "Gandhi Bazaar, Basavanagudi, hyderabad",
     images: [
       "/placeholder.svg?text=Broken+Sidewalk+Bengaluru",
       "/placeholder.svg?text=Exposed+Wires"
@@ -161,7 +157,7 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Nisha J.",
     votes: 15,
-    location: "JM Road, Pune, Maharashtra",
+    location: "JM Road, santossh nagar,hyderabad",
     images: [
       "/placeholder.svg?text=Open+Manholes+Pune", 
       "/placeholder.svg?text=Road+Hazard"
@@ -170,14 +166,14 @@ export const mockIssues: IssueReport[] = [
   },
   {
     id: "issue-8",
-    title: "Illegal dumping of industrial waste in Yamuna river",
+    title: "Illegal dumping of industrial waste near chikkadpally",
     description: "Several factories are dumping untreated industrial waste directly into the Yamuna river near Kalindi Kunj. The water has turned dark and has a chemical smell. This is causing severe pollution and affecting marine life.",
     category: "Environmental Hazard",
     status: "reported",
     reportedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Arjun M.",
     votes: 18,
-    location: "Kalindi Kunj, Delhi-Noida border",
+    location: "chikkadpally,hyderabad,Telangana",
     images: [
       "/placeholder.svg?text=Yamuna+Pollution", 
       "/placeholder.svg?text=Industrial+Waste"
@@ -190,13 +186,13 @@ export const mockIssues: IssueReport[] = [
   {
     id: "issue-9",
     title: "Fallen tree blocking road in Salt Lake",
-    description: "A large tree has fallen across the road in Salt Lake Sector 5 after last night's heavy storm. It's completely blocking the road and has damaged electric lines. Municipal workers were informed but no action taken yet.",
+    description: "A large tree has fallen across the road in banjara hills ,road no 22 after last night's heavy storm. It's completely blocking the road and has damaged electric lines. Municipal workers were informed but no action taken yet.",
     category: "Tree Hazard",
     status: "in-progress",
     reportedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Sanjay D.",
     votes: 9,
-    location: "Salt Lake Sector 5, Kolkata",
+    location: "banjara hills,road no 22, hyderabad, Telangana",
     images: [
       "/placeholder.svg?text=Fallen+Tree+Kolkata", 
       "/placeholder.svg?text=Blocked+Road"
@@ -205,14 +201,14 @@ export const mockIssues: IssueReport[] = [
   },
   {
     id: "issue-10",
-    title: "Public toilet in disrepair at Chennai Central Station",
-    description: "The public toilet at Chennai Central Station platform 1 is in extremely poor condition. No water supply, broken doors, and extremely unhygienic conditions. Thousands of passengers use this station daily and this is causing great inconvenience.",
+    title: "Public toilet in disrepair near apollo hospital",
+    description: "The public toilet near apollo hospital is in extremely poor condition. No water supply, broken doors, and extremely unhygienic conditions. Thousands of passengers use this station daily and this is causing great inconvenience.",
     category: "Public Facility",
     status: "reported",
     reportedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Lakshmi N.",
     votes: 12,
-    location: "Chennai Central Railway Station, Platform 1",
+    location: "near apollo hospital,hyderabad,Telangana",
     images: ["/placeholder.svg?text=Toilet+Condition+Chennai"],
     aiTags: ["public toilet", "sanitation", "public facility", "hygiene", "railway station"]
   },
@@ -225,7 +221,7 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Mohan G.",
     votes: 14,
-    location: "Indira Nagar, Lucknow",
+    location: "Indira Nagar, hyderabad,Telangana",
     images: ["/placeholder.svg?text=Stray+Dogs+Lucknow"],
     aiTags: ["stray dogs", "public safety", "park", "animal control"]
   },
@@ -256,20 +252,20 @@ export const mockIssues: IssueReport[] = [
     reportedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Vimala S.",
     votes: 8,
-    location: "Lower Bazaar, Near Government School, Shimla",
+    location: "chota bazaar, Near Government School,flimnagar,hyderabad,Telangana",
     images: ["/placeholder.svg?text=School+Zone+Shimla"],
     aiTags: ["school zone", "road safety", "speed breakers", "children"]
   },
   {
     id: "issue-14",
-    title: "Overflowing sewage in Kharadi IT Park area",
-    description: "The sewage system in Kharadi IT Park area has been overflowing for the past three days. Waste water is accumulating on the main road making it difficult for pedestrians and causing health concerns. The stench is affecting nearby offices and residential areas.",
+    title: "Overflowing sewage in ramanthapur",
+    description: "The sewage system in ramanthapur area has been overflowing for the past three days. Waste water is accumulating on the main road making it difficult for pedestrians and causing health concerns. The stench is affecting nearby offices and residential areas.",
     category: "Sewage Issue",
     status: "resolved",
     reportedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
     reportedBy: "Aditya P.",
     votes: 9,
-    location: "Kharadi IT Park, Pune",
+    location: "ramantha pur,hyderabad,Telangana",
     images: [
       "/placeholder.svg?text=Sewage+Overflow+Pune",
       "/placeholder.svg?text=Affected+Road"
@@ -286,7 +282,7 @@ export const mockIssues: IssueReport[] = [
     reportedBy: "Rajesh K.",
     votes: 7,
     location: {
-      address: "Inner Circle, Connaught Place, New Delhi",
+      address: "kundanbagh,hyderabad,Telangana",
       lat: 28.6315, 
       lng: 77.2167
     },

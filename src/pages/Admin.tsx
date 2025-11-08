@@ -16,7 +16,10 @@ import { AIInsightsDashboard } from "@/components/admin/AIInsightsDashboard";
 import AdminAIAssistant from "@/components/admin/AdminAIAssistant";
 import InteractiveDataVisualizer from "@/components/admin/InteractiveDataVisualizer";
 import AutomatedPrioritizationSystem from "@/components/admin/AutomatedPrioritizationSystem";
+import RouteOptimization from "@/components/admin/RouteOptimization";
 import VideoAnalyticsInsights from "@/components/admin/VideoAnalyticsInsights";
+import OfficialUserManagement from "@/components/admin/OfficialUserManagement";
+import AdminUserManagement from "@/components/admin/AdminUserManagement";
 
 // Enhanced Admin component with interactive and AI features
 const Admin = () => {
@@ -63,10 +66,12 @@ const Admin = () => {
           <Tabs defaultValue="reports">
             <TabsList className="mb-4">
               <TabsTrigger value="reports">Reports</TabsTrigger>
+              <TabsTrigger value="officials">Officials</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
               <TabsTrigger value="automation">Automation</TabsTrigger>
               <TabsTrigger value="video">Video Analytics</TabsTrigger>
+              <TabsTrigger value="routes">Route Optimization</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -84,6 +89,15 @@ const Admin = () => {
                   onAreaFilterChange={setSelectedArea}
                 />
                 <IssueTable issues={filteredIssues} />
+              </TabContent>
+            </TabsContent>
+            
+            <TabsContent value="officials" className="pt-4">
+              <TabContent 
+                title="Official User Management" 
+                description="Create and manage official user accounts for government personnel."
+              >
+                <OfficialUserManagement />
               </TabContent>
             </TabsContent>
             
@@ -131,7 +145,21 @@ const Admin = () => {
                 title="Admin Settings" 
                 description="Configure system settings and permissions."
               >
-                <SettingsPanel />
+                <div className="space-y-6">
+                  <AdminUserManagement />
+                  <div className="mt-6">
+                    <SettingsPanel />
+                  </div>
+                </div>
+              </TabContent>
+            </TabsContent>
+            
+            <TabsContent value="routes" className="pt-4">
+              <TabContent 
+                title="Route Optimization" 
+                description="Find alternate routes and report blocked roads to Google Maps."
+              >
+                <RouteOptimization issues={filteredIssues} />
               </TabContent>
             </TabsContent>
           </Tabs>

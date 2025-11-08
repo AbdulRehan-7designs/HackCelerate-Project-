@@ -1,10 +1,11 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Minimize, Maximize, Send } from 'lucide-react';
+import { MessageCircle, X, Minimize, Maximize, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   type: 'user' | 'bot';
@@ -19,10 +20,11 @@ const FloatingChatbot = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { 
       type: 'bot', 
-      content: 'Hello! I\'m your CivicPulse assistant. How can I help you with community issues today?', 
+      content: 'Hello! I\'m your CivicPulse assistant powered by Gemini AI. How can I help you with community issues today?', 
       timestamp: new Date() 
     }
   ]);
@@ -37,34 +39,9 @@ const FloatingChatbot = () => {
     }
   }, [messages, isOpen]);
 
-  // Predefined responses based on common civic queries
-  const getBotResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('pothole') || input.includes('road') || input.includes('street damage')) {
-      return 'Potholes and road damage should be reported with location details and photos if possible. Current average response time for road repairs is 5-7 days.';
-    } else if (input.includes('garbage') || input.includes('trash') || input.includes('waste')) {
-      return 'For garbage collection issues, please provide the exact location. The municipal waste management team operates daily from 6am to 10am.';
-    } else if (input.includes('water') || input.includes('leak') || input.includes('pipe')) {
-      return 'Water leakage issues are handled by the Water Supply Department. Emergency water problems are typically addressed within 24 hours.';
-    } else if (input.includes('light') || input.includes('streetlight') || input.includes('lamp')) {
-      return 'Street light outages can be reported with the pole number if visible. The electrical maintenance team usually repairs these within 48-72 hours.';
-    } else if (input.includes('how to report') || input.includes('submit') || input.includes('create report')) {
-      return 'To create a new report, go to the main page and click on "Report Issue". You\'ll need to provide details, location, and preferably photos of the issue.';
-    } else if (input.includes('status') || input.includes('update') || input.includes('progress')) {
-      return 'You can check the status of your reported issues in the "My Reports" section. Each report will show its current status: Reported, Verified, In Progress, or Resolved.';
-    } else if (input.includes('contact') || input.includes('speak') || input.includes('human')) {
-      return 'If you need to speak with a representative, please call our helpline at 1800-123-4567 between 9am to 5pm on weekdays.';
-    } else if (input.includes('thank')) {
-      return 'You\'re welcome! Is there anything else I can help you with regarding community issues?';
-    }
-    
-    return 'I understand you\'re asking about ' + userInput + '. To best assist you, could you provide more specific details about the civic issue you\'re experiencing?';
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() === '') return;
+    if (input.trim() === '' || isLoading) return;
     
     // Add user message
     const userMessage: Message = {
@@ -74,17 +51,40 @@ const FloatingChatbot = () => {
     };
     
     setMessages(prev => [...prev, userMessage]);
+    const userInput = input;
     setInput('');
+    setIsLoading(true);
     
-    // Simulate bot thinking and then respond
-    setTimeout(() => {
+    try {
+      // Call Gemini-powered AI chat function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { 
+          message: userInput,
+          context: 'User is asking about civic issues on CivicPulse platform'
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
       const botMessage: Message = {
         type: 'bot',
-        content: getBotResponse(input),
+        content: data?.response || 'I apologize, but I couldn\'t generate a response. Please try again.',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
-    }, 500);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      const botMessage: Message = {
+        type: 'bot',
+        content: 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -232,8 +232,12 @@ const FloatingChatbot = () => {
                     onChange={(e) => setInput(e.target.value)}
                     className="flex-1"
                   />
-                  <Button type="submit" size="icon" className="gradient-header">
-                    <Send size={16} />
+                  <Button type="submit" size="icon" className="gradient-header" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Send size={16} />
+                    )}
                   </Button>
                 </form>
               </CardFooter>

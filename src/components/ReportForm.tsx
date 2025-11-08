@@ -18,6 +18,7 @@ import { Card } from './ui/card';
 import { Progress } from './ui/progress';
 import GoogleMapSelector from './GoogleMapSelector';
 import VideoAIDetection, { DetectionResult } from './VideoAIDetection';
+import SpeechToForm from './SpeechToForm';
 
 interface MediaFile {
   type: 'image' | 'audio' | 'video';
@@ -279,6 +280,25 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
       }
     }
   };
+
+  const handleSpeechFormData = (data: {
+    title?: string;
+    description?: string;
+    category?: string;
+    address?: string;
+    area?: string;
+  }) => {
+    if (data.title) setTitle(data.title);
+    if (data.description) setDescription(data.description);
+    if (data.category) setCategory(data.category);
+    if (data.address) setAddress(data.address);
+    if (data.area) setArea(data.area);
+    
+    toast({
+      title: "Form Auto-filled",
+      description: "Information from your speech has been filled into the form.",
+    });
+  };
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
@@ -293,6 +313,9 @@ const ReportForm = ({ onSubmitSuccess }: ReportFormProps) => {
       )}
       
       <div className="grid gap-5">
+        {/* Speech to Form Component */}
+        <SpeechToForm onFormDataExtracted={handleSpeechFormData} />
+        
         <div className="space-y-2">
           <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
           <Input

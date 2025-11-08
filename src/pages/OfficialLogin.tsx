@@ -15,11 +15,16 @@ const OfficialLogin = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, userRole } = useAuth();
 
-  // If already logged in, redirect to admin
+  // If already logged in, redirect based on role
   if (isAuthenticated) {
-    return <Navigate to="/admin" />;
+    if (userRole === 'admin') {
+      return <Navigate to="/admin" />;
+    } else if (userRole === 'official') {
+      return <Navigate to="/official" />;
+    }
+    return <Navigate to="/" />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -37,14 +42,14 @@ const OfficialLogin = () => {
     setIsLoading(true);
     
     try {
-      // For officials, we'll automatically treat them as admins
-      // In a real app, this would verify against a database of official accounts
-      await login(email, password);
+      const { error } = await login(email, password);
       
-      toast({
-        title: "Official Login Successful",
-        description: "Welcome to the admin dashboard.",
-      });
+      if (error) {
+        // Error already handled in auth context
+        return;
+      }
+      
+      // Navigation is handled in AuthContext based on role
     } catch (error) {
       toast({
         title: "Login Failed",

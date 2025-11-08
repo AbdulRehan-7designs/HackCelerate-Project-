@@ -18,8 +18,37 @@
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="text/javascript">
+
+      (function(d, t) {
+
+          var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+
+          v.onload = function() {
+
+            window.voiceflow.chat.load({
+
+              verify: { projectID: '690dfeff393f63b000220cdf' },
+
+              url: 'https://general-runtime.voiceflow.com',
+
+              versionID: 'production',
+
+              voice: {
+
+                url: "https://runtime-api.voiceflow.com"
+
+              }
+
+            });
+
+          }
+
+          v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+
+      })(document, 'script');
+
+    </script>
   </body>
 </html>
